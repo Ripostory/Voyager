@@ -11,7 +11,7 @@ Planet::Planet()
 {
 	  loadNewModel("assets/models/planet.obj");
 	  scale(7.0f);
-	  seed = 0;
+	  seed = 20;
 	  color1 = glm::vec3(0.8, 0.5, 0.1);
 	  color2 = glm::vec3(0.4, 0.9, 0.7);
 	  color3 = glm::vec3(0, 0.4, 0.5);
@@ -52,20 +52,17 @@ void Planet::Render(Shader *ref)
 
 void Planet::Update(unsigned int dt)
 {
-	generateForeground();
 }
 
 void Planet::generate()
 {
-	//choose to generate either rocky or gas giant
-	switch (rand()%2)
+	if (seededRand() < 0.5)
 	{
-	case 0:
 		genGas();
-		break;
-	case 1:
+	}
+	else
+	{
 		genRocky();
-		break;
 	}
 }
 
@@ -83,10 +80,6 @@ void Planet::generateForeground()
 	distort = glm::vec2(0.2,1);
 	isGiant = false;
 
-	//create new seed
-	seed += rand()*0.1f;
-	seed = fmod(seed, 1000.0f);
-
 	generate();
 	generateLight();
 
@@ -96,10 +89,6 @@ void Planet::generateForeground()
 
 void Planet::generateChildren()
 {
-	//create new seed
-	seed += rand()*0.1f;
-	seed = fmod(seed, 1000.0f);
-
 	generate();
 	//assume the light has already been generated
 	//place into scene
@@ -115,12 +104,12 @@ void Planet::genGas()
 
 	//choose more contrastig colors
 	color1 = randVec3();
-	color2 = warmer(complement(color1), randFloat());
-	color3 = warmer(color1, randFloat());
-	color4 = cooler(color2, randFloat());
+	color2 = warmer(complement(color1), seededRand());
+	color3 = warmer(color1, seededRand());
+	color4 = cooler(color2, seededRand());
 
-	atmosphere = cooler((color1+color2)/2.0f, randFloat());
-	horizon = warmer(complement(atmosphere), randFloat());
+	atmosphere = cooler((color1+color2)/2.0f, seededRand());
+	horizon = warmer(complement(atmosphere), seededRand());
 }
 
 void Planet::genRocky()
@@ -137,12 +126,12 @@ void Planet::genRocky()
 
 	//choose random color
 	color1 = randVec3();
-	color2 = warmer(color1, randFloat());
+	color2 = warmer(color1, seededRand());
 	color3 = randVec3();
-	color4 = cooler(color3, randFloat());
+	color4 = cooler(color3, seededRand());
 
-	atmosphere = cooler((color1+color2)/2.0f, randFloat());
-	horizon = warmer(atmosphere, randFloat());
+	atmosphere = cooler((color1+color2)/2.0f, seededRand());
+	horizon = warmer(atmosphere, seededRand());
 }
 
 void Planet::genMoon()
@@ -158,17 +147,19 @@ void Planet::genMoon()
 		scale((randFloat()*0.5f)+0.5f);
 
 	//choose closer colors for more muted colors
+	//generate based on seed
 	color1 = desaturate(randVec3(), 0.5);
-	color2 = warmer(color1, randFloat()/2.0f);
-	color3 = warmer(color1, randFloat()/2.0f);
-	color4 = cooler(color3, randFloat()/2.0f);
+	color2 = warmer(color1, seededRand()/2.0f);
+	color3 = warmer(color1, seededRand()/2.0f);
+	color4 = cooler(color3, seededRand()/2.0f);
 
-	atmosphere = cooler((color1+color2)/4.0f, randFloat());
-	horizon = warmer(atmosphere/2.0f, randFloat());
+	atmosphere = cooler((color1+color2)/4.0f, seededRand());
+	horizon = warmer(atmosphere/2.0f, seededRand());
 }
 
 void Planet::generateLight()
 {
+	//purely random
 	float angle = randFloat();
 	lightPos.x = glm::sin((angle*2.0f)-1.0f)*50.0f;
 	lightPos.y = (randFloat()*200.0f)-100.0f;
@@ -180,9 +171,16 @@ float Planet::randFloat()
 	return (float) rand()/RAND_MAX;
 }
 
+float Planet::seededRand()
+{
+	//generate random
+	seed = (glm::sin(seed*332312.553) * 123.5453);
+	return ((seed/123.5453)+1.0)/2.0;
+}
+
 glm::vec3 Planet::randVec3()
 {
-	return glm::vec3(randFloat(),randFloat(),randFloat());
+	return glm::vec3(seededRand(),seededRand(),seededRand());
 }
 
 //color picking functions to choose more pleasing colors

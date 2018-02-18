@@ -27,7 +27,8 @@ public:
 	void genRocky();
 	void genMoon();
 	static float randFloat();
-	static glm::vec3 randVec3();
+	float seededRand();
+	glm::vec3 randVec3();
 	static glm::vec3 complement(glm::vec3);
 	static glm::vec3 warmer(glm::vec3, float mag);
 	static glm::vec3 cooler(glm::vec3, float mag);
