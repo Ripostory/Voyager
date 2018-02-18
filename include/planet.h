@@ -20,7 +20,8 @@ public:
 	void Render(Shader*);
 	void Update(unsigned int);
 	void generate();
-	void generate(glm::vec3);
+	void generateForeground();
+	void generateChildren();
 	void generateLight();
 	void genGas();
 	void genRocky();
@@ -31,6 +32,8 @@ public:
 	static glm::vec3 warmer(glm::vec3, float mag);
 	static glm::vec3 cooler(glm::vec3, float mag);
 	static glm::vec3 desaturate(glm::vec3, float);
+	void frame();
+	void place();
 
 private:
 	glm::vec3 color1;
@@ -44,6 +47,7 @@ private:
 	glm::vec2 distort;
 
 	float seed;
+	bool isGiant;
 };
 
 

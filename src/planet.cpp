@@ -20,6 +20,7 @@ Planet::Planet()
 	  horizon = glm::vec3(0.8f, 0.2f, 0.1f);
 	  lightPos = glm::vec3(-50.0f, 1.0f, -50.0f);
 	  distort = glm::vec2(0.2,1);
+	  isGiant = false;
 }
 
 Planet::~Planet()
@@ -51,19 +52,13 @@ void Planet::Render(Shader *ref)
 
 void Planet::Update(unsigned int dt)
 {
-	//choose next random
-	seed = rand()*0.01f;
-	seed = fmod(seed, 1000.0f);
-
-	scale(7.0f);
-	generate();
-	generateLight();
+	generateForeground();
 }
 
 void Planet::generate()
 {
 	//choose to generate either rocky or gas giant
-	switch (rand()%3)
+	switch (rand()%2)
 	{
 	case 0:
 		genGas();
@@ -71,20 +66,50 @@ void Planet::generate()
 	case 1:
 		genRocky();
 		break;
-	case 2:
-		genMoon();
-		break;
 	}
 }
 
-void Planet::generate(glm::vec3 light)
+void Planet::generateForeground()
 {
+	//reset values
+	scale(7.0f);
+	color1 = glm::vec3(0.8, 0.5, 0.1);
+	color2 = glm::vec3(0.4, 0.9, 0.7);
+	color3 = glm::vec3(0, 0.4, 0.5);
+	color4 = glm::vec3(1, 1, 1);
+	atmosphere = glm::vec3(0.3f, 0.5f, 0.7f);
+	horizon = glm::vec3(0.8f, 0.2f, 0.1f);
+	lightPos = glm::vec3(-50.0f, 1.0f, -50.0f);
+	distort = glm::vec2(0.2,1);
+	isGiant = false;
+
+	//create new seed
+	seed += rand()*0.1f;
+	seed = fmod(seed, 1000.0f);
+
 	generate();
-	lightPos = light;
+	generateLight();
+
+	//frame planet
+	frame();
+}
+
+void Planet::generateChildren()
+{
+	//create new seed
+	seed += rand()*0.1f;
+	seed = fmod(seed, 1000.0f);
+
+	generate();
+	//assume the light has already been generated
+	//place into scene
+	place();
 }
 
 void Planet::genGas()
 {
+	isGiant = true;
+	scale((randFloat()*2.0f)+7.0f);
 	//use distortion to create the gas giant 'banding'
 	distort = glm::vec2(0.2,1);
 
@@ -100,6 +125,12 @@ void Planet::genGas()
 
 void Planet::genRocky()
 {
+
+	//shrink if there is a giant
+	if (isGiant)
+		scale(((randFloat()*1.0f)+7.0f)/2);
+	else
+		scale((randFloat()*1.0f)+7.0f);
 
 	//use no distortion
 	distort = glm::vec2(1,1);
@@ -120,8 +151,11 @@ void Planet::genMoon()
 	//lower detail
 	distort = glm::vec2(0.1,0.1);
 
-	//shrink
-	scale((randFloat()*2.0f)+2.0f);
+	//shrink if there is a giant
+	if (isGiant)
+		scale(((randFloat()*0.5f)+0.5f)/2);
+	else
+		scale((randFloat()*0.5f)+0.5f);
 
 	//choose closer colors for more muted colors
 	color1 = desaturate(randVec3(), 0.5);
@@ -193,6 +227,43 @@ glm::vec3 Planet::desaturate(glm::vec3 color, float scale)
 	return (intensity*scale) + (color*(1-scale));
 }
 
+void Planet::frame()
+{
+	//frames the foreground parent
+
+	//base location on light direction
+	glm::vec3 light = glm::normalize(lightPos);
+
+	glm::vec3 move = glm::vec3(10*-light.x, 3*-light.y ,0);
+	move.x += (randFloat()-0.5f)*4.0;
+	move.y += (randFloat()-0.5f)*4.0;
+
+	//do a roll to determine if we want to do extreme zoom in
+	if (randFloat() < 0.3f)
+	{
+		//do extreme zoom in
+		scale((randFloat()*5.0f)+10.0f);
+		translate(move/2.0f);
+	}
+	else
+	{
+		translate(move);
+	}
+}
+
+void Planet::place()
+{
+	//place in relation to parent
+	float zPlace = (randFloat()*80.0f)+50.0f;;
+
+	//reside in a random area
+	glm::vec3 move = glm::vec3(0,0,zPlace);
+	move.x += (randFloat()-0.5f)*8.0*(zPlace/20.0f);
+	move.y += (randFloat()-0.5f)*8.0*(zPlace/20.0f);
+
+	translate(move);
+
+}
 
 
 

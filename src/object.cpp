@@ -132,7 +132,7 @@ void Object::rotate(float degree, glm::vec3 axis)
 
 void Object::updateMatrix()
 {
-	model = m_scale * m_rotate * m_translate;
+	model = m_translate * m_scale * m_rotate;
 }
 
 
