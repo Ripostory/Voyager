@@ -53,6 +53,7 @@ public:
 	bool loadObject(string, obj&);
 	bool loadShader(string, string&);
 	bool loadTexture(string, Texture&);
+	static bool writeImage(string, int, int);
 
 };
 

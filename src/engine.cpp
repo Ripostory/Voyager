@@ -57,6 +57,8 @@ void Engine::Run()
   //render graphics
   int initialDT = getDT();
   m_graphics->Render();
+  //write to output
+  loader::writeImage("test", m_WINDOW_WIDTH, m_WINDOW_HEIGHT);
   cout << "render time: " << (float)getDT()-(float)initialDT << "ms" << endl;
 
   while(m_running)

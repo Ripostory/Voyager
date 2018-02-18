@@ -211,15 +211,27 @@ bool loader::loadTexture(string filename, Texture &output)
 	return true;
 }
 
+bool loader::writeImage(string filename, int width, int height)
+{
+	//move contents of default render buffer to blob
+	char* buffer = new char[3*width*height];
+	glReadPixels(0,0,width,height, GL_RGB, GL_BYTE, buffer);
+	Magick::Blob data(buffer, 3 * width * height);
+
+	//create image from BLOB
+	Magick::Image final;
+	final.magick("RGB");
+	final.size(Magick::Geometry(width, height, 0, 0));
+	final.depth(8);
+	final.read(data);
+
+	//post processing
+	final.opacity(0);
+	final.modulate(200.0,100.0,100.0);
+	final.flip();
 
 
-
-
-//TODO
-/*
- *    char *buffer; // needs to be big enough
-    glReadPixels( 0, 0, width, length, GL_BGR, GL_BYTE, buffer );
-    Blob b( buffer, 3 * width * length );
-    Image i( b, 3 * width * length, 3 );
-    i.write( "img.jpg" );
- */
+	final.write(filename + ".png");
+	delete[] buffer;
+	return true;
+}
