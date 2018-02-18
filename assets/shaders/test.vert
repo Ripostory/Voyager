@@ -7,23 +7,19 @@ smooth out vec3 color;
 out vec3 fragPos;
 out vec3 normal;
 out vec3 viewDir;
-out vec2 texCoordMod;
+out vec2 tCoord;
           
 uniform mat4 projectionMatrix; 
 uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;
-
-out vec3 lightPos;
         
 void main(void) 
 { 
   vec4 v = vec4(v_position, 1.0); 
   gl_Position = (projectionMatrix * viewMatrix * modelMatrix) * v; 
   fragPos = vec3(modelMatrix * vec4(v_position, 1.0));
-  //use temp color
   
-  lightPos = vec3(50.0f, 1.0f, -30.0f);
-  texCoordMod = v_texcoord;
+  tCoord = v_texcoord;
   
   //did normal calculation in color array
   //modify normals to world space

@@ -5,11 +5,19 @@ smooth in vec3 color;
 in vec3 fragPos;
 in vec3 normal;
 in vec3 viewDir;
-in vec2 texCoordMod;
+in vec2 tCoord;
 
 out vec4 frag_color;
 
-in vec3 lightPos;
+uniform float inpSeed;
+uniform vec3 color1;
+uniform vec3 color2;
+uniform vec3 color3;
+uniform vec3 color4;
+uniform vec3 atmosphere;
+uniform vec3 horizon;
+uniform vec3 lightPos;
+uniform vec2 warp;
 
 //function definitions
 float rand(vec2 c);
@@ -39,10 +47,8 @@ void main(void)
 	
 	
 	//atmosphere effects
-	vec3 atmColor = vec3(0.3f, 0.5f, 0.7f);
-	vec3 atmHorizon = vec3(0.8f, 0.2f, 0.1f);
 	float horizonBrightness = max(dot(normal, lightDir), 0)/5;
-	vec3 atmFinal = mix(atmHorizon, atmColor, pow(diff, 2.0f));
+	vec3 atmFinal = mix(horizon, atmosphere, pow(diff, 2.0f));
 	float atmBrightness = pow(sin(acos(dot(normalize(normal), normalize(viewDir)))), 20.0f)/50;
 	atmBrightness = clamp(atmBrightness, 0 ,1);
 
@@ -50,11 +56,7 @@ void main(void)
 	//terrain
 	vec2 testColor;
 	vec2 testColor2;
-	vec3 perlinOutput = vec3(distort(texCoordMod, 716, testColor, testColor2));
-	vec3 color1 = vec3(0.8, 0.5, 0.1);
-	vec3 color2 = vec3(0.4, 0.9, 0.7);
-	vec3 color3 = vec3(0, 0.4, 0.5);
-	vec3 color4 = vec3(1, 1, 1);
+	vec3 perlinOutput = vec3(distort(tCoord*warp, inpSeed, testColor, testColor2));
 	float chooser = pNoise(testColor, 20, 3, 8);
 	float chooser2 = pNoise(testColor2, 20, 3, 8);
 
@@ -68,7 +70,9 @@ void main(void)
 
 	vec4 atmOut = vec4(atmFinal * atmBrightness * horizonBrightness , 1.0f);
 	vec4 base = (finalColor * vec4(diffuse, 1.0));
-    frag_color = base + atmOut;
+
+	//blend
+	frag_color = 1 - (1 - base) * (1 - atmOut);
 }
 
 
@@ -147,11 +151,11 @@ vec2 fbm(vec2 domain, float seed, float amplitude, float frequency)
     return final;
 }
 
+//does the final distortion
 float distort(vec2 domain, float seed, out vec2 first, out vec2 second)
 {
     float freq = 4.0;
     float amp = 1.0;
-    float persistance = 0.5;
 
     //base distort
     first = fbm(domain, seed, amp, freq);

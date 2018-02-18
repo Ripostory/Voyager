@@ -94,6 +94,12 @@ void Engine::Keyboard(eventType event)
     {
       m_running = false;
     }
+
+    //regenerate from seed
+    if (event.key == SDLK_SPACE)
+    {
+      m_graphics->Render();
+    }
   }
 }
 
