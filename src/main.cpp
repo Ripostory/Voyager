@@ -31,7 +31,7 @@ int main(int argc, char **argv)
   {
 	  //no arguments
 	  //run default
-	  engine->passArgs("DEFUALT", 1.0);
+	  engine->passArgs("DEFUALT", 12.0);
   }
   else{
 	  engine->passArgs(argv[1], std::atof(argv[2]));

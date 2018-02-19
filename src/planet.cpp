@@ -29,8 +29,13 @@ Planet::~Planet()
 
 void Planet::Render(Shader *ref)
 {
+	//modify seed to be between 0 and 1;
+	//older versions of openGL don't like having a large seed
+	float boundedSeed;
+	boundedSeed = (seed + 123.5453)/(123.5453*2.0);
+
 	//pass in seed
-	glUniform1f(ref->GetUniformLocation("inpSeed"),seed);
+	glUniform1f(ref->GetUniformLocation("inpSeed"),boundedSeed);
 
 	//pass in planet colors
 	glUniform3fv(ref->GetUniformLocation("color1"),1, glm::value_ptr(color1));
@@ -266,6 +271,10 @@ void Planet::place()
 void Planet::setSeed(float newseed)
 {
 	seed = newseed;
+
+	//put seed within bounds
+	seededRand();
+
 	//seed randomizer
 	int counter = fmod(100, seed);
 	for (int i = 0; i < counter; i++)
