@@ -15,9 +15,10 @@ class Graphics
   public:
     Graphics();
     ~Graphics();
-    bool Initialize(int width, int height);
+    bool Initialize(int width, int height, bool enable);
     void Update(unsigned int dt);
     void Render();
+    void setSeed(float);
 
   private:
     std::string ErrorString(GLenum error);

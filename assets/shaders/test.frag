@@ -1,13 +1,11 @@
-#version 330
+#version 120
 
 //take in position and normal
-smooth in vec3 color;
-in vec3 fragPos;
-in vec3 normal;
-in vec3 viewDir;
-in vec2 tCoord;
-
-out vec4 frag_color;
+varying vec3 color;
+varying vec3 fragPos;
+varying vec3 normal;
+varying vec3 viewDir;
+varying vec2 tCoord;
 
 uniform float inpSeed;
 uniform vec3 color1;
@@ -70,9 +68,10 @@ void main(void)
 
 	vec4 atmOut = vec4(atmFinal * atmBrightness * horizonBrightness , 1.0f);
 	vec4 base = (finalColor * vec4(diffuse, 1.0));
+	vec4 final = 1 - (1 - base) * (1 - atmOut);
 
 	//blend
-	frag_color = 1 - (1 - base) * (1 - atmOut);
+	gl_FragColor = vec4(final.rgb, 1.0f);
 }
 
 

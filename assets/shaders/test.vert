@@ -1,13 +1,14 @@
-#version 330
-layout (location = 0) in vec3 v_position;
-layout (location = 1) in vec3 v_color;
-layout (location = 2) in vec2 v_texcoord;
+#version 120
+
+attribute vec3 v_position;
+attribute vec3 v_color;
+attribute vec2 v_texcoord;
          
-smooth out vec3 color; 
-out vec3 fragPos;
-out vec3 normal;
-out vec3 viewDir;
-out vec2 tCoord;
+varying vec3 color;
+varying vec3 fragPos;
+varying vec3 normal;
+varying vec3 viewDir;
+varying vec2 tCoord;
           
 uniform mat4 projectionMatrix; 
 uniform mat4 viewMatrix;
@@ -30,6 +31,6 @@ void main(void)
   
   //get view position
   //we know where the camera is, since it isn't the one that moves
-  viewDir = fragPos - vec3(0,0,-50);
+  viewDir = fragPos - vec3(0,0,-70);
 }
           

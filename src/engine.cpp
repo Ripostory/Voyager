@@ -7,6 +7,7 @@ Engine::Engine(string name, int width, int height)
   m_WINDOW_WIDTH = width;
   m_WINDOW_HEIGHT = height;
   m_FULLSCREEN = false;
+  GUIenabled = true;
 }
 
 Engine::Engine(string name)
@@ -15,6 +16,7 @@ Engine::Engine(string name)
   m_WINDOW_HEIGHT = 0;
   m_WINDOW_WIDTH = 0;
   m_FULLSCREEN = true;
+  GUIenabled = false;
 }
 
 Engine::~Engine()
@@ -28,7 +30,8 @@ Engine::~Engine()
 bool Engine::Initialize()
 {
   // Start a window
-  m_window = new Window();
+  //skip window if running in headless mode
+  m_window = new window(GUIenabled);
   if(!m_window->Initialize(m_WINDOW_NAME, &m_WINDOW_WIDTH, &m_WINDOW_HEIGHT))
   {
     printf("The window failed to initialize.\n");
@@ -37,7 +40,7 @@ bool Engine::Initialize()
 
   // Start the graphics
   m_graphics = new Graphics();
-  if(!m_graphics->Initialize(m_WINDOW_WIDTH, m_WINDOW_HEIGHT))
+  if(!m_graphics->Initialize(m_WINDOW_WIDTH, m_WINDOW_HEIGHT, GUIenabled))
   {
     printf("The graphics failed to initialize.\n");
     return false;
@@ -56,12 +59,13 @@ void Engine::Run()
 
   //render graphics
   int initialDT = getDT();
+  m_graphics->Update(m_DT);
   m_graphics->Render();
   //write to output
-  loader::writeImage("test", m_WINDOW_WIDTH, m_WINDOW_HEIGHT);
+  loader::writeImage(outputName, m_WINDOW_WIDTH, m_WINDOW_HEIGHT);
   cout << "render time: " << (float)getDT()-(float)initialDT << "ms" << endl;
 
-  while(m_running)
+  while(m_running && GUIenabled)
   {
     // Update the DT
     m_DT = getDT();
@@ -119,3 +123,16 @@ long long Engine::GetCurrentTimeMillis()
   long long ret = t.tv_sec * 1000 + t.tv_usec / 1000;
   return ret;
 }
+
+void Engine::passArgs(string filename, float seed)
+{
+	outputName = filename;
+	m_graphics->setSeed(seed);
+}
+
+
+
+
+
+
+

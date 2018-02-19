@@ -10,13 +10,12 @@ Graphics::~Graphics()
 
 }
 
-bool Graphics::Initialize(int width, int height)
+bool Graphics::Initialize(int width, int height, bool enable)
 {
   // Used for the linux OS
   #if !defined(__APPLE__) && !defined(MACOSX)
     // cout << glewGetString(GLEW_VERSION) << endl;
     glewExperimental = GL_TRUE;
-
     auto status = glewInit();
 
     // This is here to grab the error that comes from glew init.
@@ -83,6 +82,11 @@ bool Graphics::Initialize(int width, int height)
   return true;
 }
 
+void Graphics::setSeed(float newSeed)
+{
+	m_cube->setSeed(newSeed);
+}
+
 void Graphics::Update(unsigned int dt)
 {
   // Update the object
@@ -97,6 +101,8 @@ void Graphics::Render()
   glEnable(GL_CULL_FACE);
   glClearColor(0.0, 0.0, 0.0, 1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  //generate initial
+  m_cube->generateForeground();
 
   // Start the correct program
   m_shader->Enable();

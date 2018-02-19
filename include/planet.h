@@ -26,7 +26,7 @@ public:
 	void genGas();
 	void genRocky();
 	void genMoon();
-	static float randFloat();
+	float randFloat();
 	float seededRand();
 	glm::vec3 randVec3();
 	static glm::vec3 complement(glm::vec3);
@@ -35,6 +35,7 @@ public:
 	static glm::vec3 desaturate(glm::vec3, float);
 	void frame();
 	void place();
+	void setSeed(float);
 
 private:
 	glm::vec3 color1;

@@ -1,20 +1,22 @@
 #include <window.h>
 
-Window::Window()
+window::window(bool gui)
 {
   gWindow = NULL;
+  GUIenabled = gui;
 }
 
-Window::~Window()
+window::~window()
 {
-  SDL_StopTextInput();
-  SDL_DestroyWindow(gWindow);
-  gWindow = NULL;
-  SDL_Quit();
+	  SDL_StopTextInput();
+	  SDL_DestroyWindow(gWindow);
+	  gWindow = NULL;
+	  SDL_Quit();
 }
 
-bool Window::Initialize(const string &name, int* width, int* height)
+bool window::Initialize(const string &name, int* width, int* height)
 {
+
     // Start SDL
   if(SDL_Init(SDL_INIT_VIDEO) < 0)
   {
@@ -23,8 +25,8 @@ bool Window::Initialize(const string &name, int* width, int* height)
   }
 
   // Start OpenGL for SDL
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
   SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 5 );
@@ -34,7 +36,7 @@ bool Window::Initialize(const string &name, int* width, int* height)
   // Create window
   SDL_DisplayMode current;
   SDL_GetCurrentDisplayMode(0, &current);
-  
+
   //use for fullscreen
   if (*height == 0 && *width == 0)
   {
@@ -42,7 +44,15 @@ bool Window::Initialize(const string &name, int* width, int* height)
     *width = current.w;
   }
 
-  gWindow = SDL_CreateWindow(name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, *width, *height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN );
+  //if disable showing window when in headless mode
+  if (GUIenabled)
+  {
+	  gWindow = SDL_CreateWindow(name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, *width, *height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN );
+  }
+  else
+  {
+	  gWindow = SDL_CreateWindow(name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, *width, *height, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN );
+  }
   if(gWindow == NULL)
   {
     printf("Window failed to create: %s\n", SDL_GetError());
@@ -67,7 +77,7 @@ bool Window::Initialize(const string &name, int* width, int* height)
   return true;
 }
 
-void Window::Swap()
+void window::Swap()
 {
   SDL_GL_SwapWindow(gWindow);
 }

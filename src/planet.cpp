@@ -168,7 +168,7 @@ void Planet::generateLight()
 
 float Planet::randFloat()
 {
-	return (float) rand()/RAND_MAX;
+	return ((float) rand()/RAND_MAX + seededRand())/2.0f;
 }
 
 float Planet::seededRand()
@@ -232,7 +232,7 @@ void Planet::frame()
 	//base location on light direction
 	glm::vec3 light = glm::normalize(lightPos);
 
-	glm::vec3 move = glm::vec3(10*-light.x, 3*-light.y ,0);
+	glm::vec3 move = glm::vec3(4*-light.x, 5*-light.y ,0);
 	move.x += (randFloat()-0.5f)*4.0;
 	move.y += (randFloat()-0.5f)*4.0;
 
@@ -263,7 +263,16 @@ void Planet::place()
 
 }
 
-
+void Planet::setSeed(float newseed)
+{
+	seed = newseed;
+	//seed randomizer
+	int counter = fmod(100, seed);
+	for (int i = 0; i < counter; i++)
+	{
+		rand();
+	}
+}
 
 
 
