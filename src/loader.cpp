@@ -219,19 +219,37 @@ bool loader::writeImage(string filename, int width, int height)
 	Magick::Blob data(buffer, 3 * width * height);
 
 	//create image from BLOB
+	Magick::Image bloom;
 	Magick::Image final;
 	final.magick("RGB");
 	final.size(Magick::Geometry(width, height, 0, 0));
 	final.depth(8);
 	final.read(data);
+	bloom.magick("RGB");
+	bloom.size(Magick::Geometry(width, height, 0, 0));
+	bloom.depth(8);
+	bloom.read(data);
 
 	//post processing
+	bloom.flip();
+	final.flip();
 	final.opacity(0);
 	final.modulate(200.0,100.0,100.0);
-	final.flip();
 
+	//blur bloom and apply it over final
+	bloom.sigmoidalContrast(1,10.0);
+	bloom.modulate(500.0,100.0,100.0);
+	bloom.blur(50.0, 50.0);
+
+	//perform screen operation 1 - (1-picture1) * (1-picture2)
+
+	final.negate();
+	bloom.negate();
+	final.composite(bloom, 0, 0, Magick::MultiplyCompositeOp);
+	final.negate();
 
 	final.write(filename + ".png");
-	delete[] buffer;
+	//delete[] buffer;
+
 	return true;
 }

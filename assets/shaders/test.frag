@@ -4,7 +4,6 @@
 varying vec3 color;
 varying vec3 fragPos;
 varying vec3 normal;
-varying vec3 viewDir;
 varying vec2 tCoord;
 
 uniform float inpSeed;
@@ -24,6 +23,10 @@ float noise(vec2 p, float freq, float stretch );
 float pNoise(vec2 p, int res, float seed, float freq);
 float perlin(vec2 domain, int resolution, float seed, float amplitude, float frequency, float weight);
 vec2 fbm(vec2 domain, float seed, float amplitude, float frequency);
+float normalDistr(vec3 N, vec3 H, float roughness);
+float geometrySchlick(float NV, float roughness);
+float geometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
+vec3 fresnel(float cTheta, vec3 F0);
 
 float distort(vec2 domain, float seed, out vec2 first, out vec2 second);
 
@@ -32,26 +35,7 @@ float distort(vec2 domain, float seed, out vec2 first, out vec2 second);
 
 void main(void)
 {	
-	//temporary light color
-	vec3 lightColor = vec3(1.0f, 1.0f, 1.0f);
-
-	//get norm and light direction;
-	vec3 lightDir = lightPos - fragPos;
-	//get diffuse strength
-	float diff = dot(normal, lightDir) / (length(lightDir) * length(normal));
-	diff = clamp(diff, 0, 1);
-	
-	vec3 diffuse = diff * lightColor;
-	
-	
-	//atmosphere effects
-	float horizonBrightness = max(dot(normal, lightDir), 0)/5;
-	vec3 atmFinal = mix(horizon, atmosphere, pow(diff, 2.0f));
-	float atmBrightness = pow(sin(acos(dot(normalize(normal), normalize(viewDir)))), 20.0f)/50;
-	atmBrightness = clamp(atmBrightness, 0 ,1);
-
-
-	//terrain
+	//generate terrain
 	vec2 testColor;
 	vec2 testColor2;
 	vec3 perlinOutput = vec3(distort(tCoord*warp, inpSeed, testColor, testColor2));
@@ -61,17 +45,59 @@ void main(void)
 	vec3 colorMix = mix(color1, color2, chooser*6);
 	vec3 colorMix2 = mix(color3, color4, chooser2*6);
 
-	vec4 finalColor = vec4(perlinOutput*(colorMix+colorMix2),1);
+	vec3 finalColor = perlinOutput*(colorMix+colorMix2);
 
 
+	/*
+	 * LIGHTING: calculate final lighting for planet
+	 */
 
+	//TODO: make lightColor passable by shader
+	vec3 lightColor = vec3(7.0f, 6.0f, 5.0f);
 
-	vec4 atmOut = vec4(atmFinal * atmBrightness * horizonBrightness , 1.0f);
-	vec4 base = (finalColor * vec4(diffuse, 1.0));
-	vec4 final = 1 - (1 - base) * (1 - atmOut);
+	//calculate lighting vectors
+	vec3 lightDir = lightPos; //directional light, all comes from same angle
+	vec3 viewDir = vec3(0,0,-70.0); //constant, since the camera doesn't move
+
+    vec3 N = normalize(normal);
+    vec3 L = normalize(lightDir);
+    vec3 V = normalize(viewDir);
+    vec3 R = normalize(L+V); //implements blinn-phong
+	
+    //begin lighting calculations
+    float metallic = (chooser2 + 0.3) * warp.x; //disables metallic if theres warp
+    float roughness = 1-metallic;
+
+    //radiance calcuations
+    vec3 F0 = vec3(0.04); //dielectric constant
+    F0 = mix(F0, finalColor, metallic);
+    vec3 F = fresnel(max(dot(N, V), 0.0), F0);
+
+    float nDistribution = normalDistr(N, R, roughness);
+	float geometry = geometrySmith(N, V, L, roughness);
+
+    //Cook-Torrance BDRF
+    vec3 top = nDistribution * geometry * F;
+    float bottom = 4* max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001;
+    vec3 specular = top / bottom;
+
+    vec3 finalSpec = max(F, 0.0);
+    vec3 finalDiff = vec3(1.0) - finalSpec;
+    finalDiff *= 1.0 - metallic;
+
+    float lightAngle = max(dot(N, L), 0.0);
+    vec3 finalLight = (finalDiff * finalColor / 3.1415 + specular) * lightColor * lightAngle;
+
+    //atmosphere effects
+	float horizonBrightness = max(dot(normal, lightDir), 0)/5;
+	vec3 atmFinal = mix(horizon, atmosphere, pow(finalDiff.r, 2.0f));
+	float atmBrightness = pow(sin(acos(dot(normalize(normal), normalize(viewDir)))), 20.0f)/50;
+	vec3 atmOut = atmFinal * atmBrightness * horizonBrightness;
 
 	//blend
-	gl_FragColor = vec4(final.rgb, 1.0f);
+	vec3 final = 1 - (1 - finalLight) * (1 - atmOut);
+
+	gl_FragColor = vec4(final, 1.0f);
 }
 
 
@@ -165,5 +191,49 @@ float distort(vec2 domain, float seed, out vec2 first, out vec2 second)
 }
 
 
+/*
+ * Area for PBR lighting related functions
+ */
 
+float normalDistr(vec3 N, vec3 H, float roughness)
+{
+	// implement normal distribution function
+	// (a^2)/(PI((N*H)^2(a^2-1)+1)^2)
+	// where a is roughness, N is normal, and H is halfway vec
+
+	float rough2 = pow(roughness, 2);
+	float NH = max(dot(N, H), 0.0);
+	float NH2 = pow(NH, 2);
+
+	float denominator = (NH2 * (rough2 - 1.0) + 1.0);
+	denominator = 3.1415 * pow(denominator, 2);
+
+	return rough2 / denominator;
+}
+
+float geometrySchlick(float NV, float roughness)
+{
+	//implements Schlick GGX
+	float r = (roughness + 1.0);
+	float k = (r*r) / 8.0;
+	return NV / (NV * (1.0 - k) + k);
+}
+
+float geometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
+{
+	//implements Smith's method
+	float NV = max(dot(N, V), 0.0);
+	float NL = max(dot(N, L), 0.0);
+	float ggx1 = geometrySchlick(NV, roughness);
+	float ggx2 = geometrySchlick(NL, roughness);
+
+	return ggx1 * ggx2;
+}
+
+
+vec3 fresnel(float cTheta, vec3 F0)
+{
+	return F0 + (1.0 - F0) * pow(1.0 - cTheta, 5.0);
+
+}
 
