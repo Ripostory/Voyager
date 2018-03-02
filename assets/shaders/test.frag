@@ -7,6 +7,7 @@ varying vec3 normal;
 varying vec2 tCoord;
 
 uniform float inpSeed;
+uniform float radius;
 uniform vec3 color1;
 uniform vec3 color2;
 uniform vec3 color3;
@@ -14,6 +15,7 @@ uniform vec3 color4;
 uniform vec3 atmosphere;
 uniform vec3 horizon;
 uniform vec3 lightPos;
+uniform vec3 center;
 uniform vec2 warp;
 
 //function definitions
@@ -26,6 +28,7 @@ vec2 fbm(vec2 domain, float seed, float amplitude, float frequency);
 float normalDistr(vec3 N, vec3 H, float roughness);
 float geometrySchlick(float NV, float roughness);
 float geometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
+float raySphereIntersect(float radius, vec3 camPos);
 vec3 fresnel(float cTheta, vec3 F0);
 
 float distort(vec2 domain, float seed, out vec2 first, out vec2 second);
@@ -57,7 +60,8 @@ void main(void)
 
 	//calculate lighting vectors
 	vec3 lightDir = lightPos; //directional light, all comes from same angle
-	vec3 viewDir = vec3(0,0,-70.0); //constant, since the camera doesn't move
+	vec3 viewPos = vec3(0,0,-70.0); //constant, since the camera doesn't move
+	vec3 viewDir = viewPos - fragPos;
 
     vec3 N = normalize(normal);
     vec3 L = normalize(lightDir);
@@ -89,27 +93,52 @@ void main(void)
     vec3 finalLight = (finalDiff * finalColor / 3.1415 + specular) * lightColor * lightAngle;
 
     //atmosphere effects
-	float horizonBrightness = max(dot(normal, lightDir), 0)/5;
-	vec3 atmFinal = mix(horizon, atmosphere, pow(finalDiff.r, 2.0f));
-	float atmBrightness = pow(sin(acos(dot(normalize(normal), normalize(viewDir)))), 20.0f)/50;
-	vec3 atmOut = atmFinal * atmBrightness * horizonBrightness;
+	vec3 atmColor = mix(horizon, atmosphere, lightAngle);
+	//calculate atmosphere scattering using ray sphere intersection
+	float influence =
+			raySphereIntersect(radius+0.05, viewPos) -
+			raySphereIntersect(radius, viewPos);
+	float power =  clamp(influence,0,1) * clamp(lightAngle, 0 ,1) * 5;
+	vec3 atmOut = power * atmColor;
 
 	//blend
 	vec3 final = 1 - (1 - finalLight) * (1 - atmOut);
-
 	gl_FragColor = vec4(final, 1.0f);
 }
 
 
+float raySphereIntersect(float radius, vec3 camPos)
+{
+	//try distance
+	vec3 rayA = camPos - fragPos; //get ray from camera to pixel
+	vec3 rayB = camPos - center; //get ray from camera to center L
+	//get theta
+	float theta = dot(normalize(rayA), normalize(rayB));
+	//project b (length of radius) onto a
+	float tc = length(rayB)*theta;
+	float L = length(rayB);
+
+	//get orthographic side between tca and rayB
+	float d = sqrt(L*L - tc*tc);
+
+	//get final contribution from radius length and orhtographic length
+	float t1c = sqrt(radius*radius - d*d);
+
+	//multiply by 2 to get full length of ray inside sphere
+	return t1c;
+}
+
 //basic noise and perlin functions based on code by Patricio Gonzalez Vivo
 
 //generates random noise from a vec2 input seed
-float rand(vec2 seed){
+float rand(vec2 seed)
+{
 	return fract(sin(dot(seed ,vec2(12.9898,78.233))) * 129039.5453);
 }
 
 //generate resolution independent noise
-float noise(vec2 p, float freq ){
+float noise(vec2 p, float freq )
+{
     //generate units for each vector point
 	float unit = 1/freq;
 	vec2 ij = floor(p/unit);
@@ -126,7 +155,8 @@ float noise(vec2 p, float freq ){
 }
 
 //layer noise of varying frequencies and amplitudes to generate perlin noise
-float pNoise(vec2 p, int res, float seed, float freq){
+float pNoise(vec2 p, int res, float seed, float freq)
+{
 
     //initialize values
     float persistance = 0.5;

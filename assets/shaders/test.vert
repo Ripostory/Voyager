@@ -28,7 +28,7 @@ void main(void)
   
   //transform to proper coordinates
   normal = vec3(modelMatrix * vec4(aNormal, 0.0f));
-  
+
   //get view position
   //we know where the camera is, since it isn't the one that moves
   viewDir = fragPos - vec3(0,0,-70);

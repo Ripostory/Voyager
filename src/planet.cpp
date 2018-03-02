@@ -51,6 +51,15 @@ void Planet::Render(Shader *ref)
 	//pass in warp (useful for generating gas giants)
 	glUniform2fv(ref->GetUniformLocation("warp"),1, glm::value_ptr(distort));
 
+	//pass in planet center
+	glm::vec3 position;
+	position.x = model[3][0];
+	position.y = model[3][1];
+	position.z = model[3][2];
+	float radius = model[0][0];
+	glUniform3fv(ref->GetUniformLocation("center"),1, glm::value_ptr(position));
+	glUniform1f(ref->GetUniformLocation("radius"), radius);
+
 	//render
 	Object::Render();
 }
@@ -165,10 +174,9 @@ void Planet::genMoon()
 void Planet::generateLight()
 {
 	//purely random
-	float angle = randFloat();
-	lightPos.x = glm::sin((angle*2.0f)-1.0f)*50.0f;
-	lightPos.y = (randFloat()*200.0f)-100.0f;
-	lightPos.z = glm::cos(angle)*-50.0f;
+	lightPos.x = randFloat()*2.0 - 1.0;
+	lightPos.y = randFloat()*2.0 - 1.0;
+	lightPos.z = -(randFloat()*2.0 - 0.5);
 }
 
 float Planet::randFloat()
