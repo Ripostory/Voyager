@@ -1,13 +1,13 @@
 
 #include "engine.h"
 
-Engine::Engine(string name, int width, int height)
+Engine::Engine(string name, int width, int height, bool gui)
 {
   m_WINDOW_NAME = name;
   m_WINDOW_WIDTH = width;
   m_WINDOW_HEIGHT = height;
   m_FULLSCREEN = false;
-  GUIenabled = false;
+  GUIenabled = gui;
 }
 
 Engine::Engine(string name)

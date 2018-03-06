@@ -11,11 +11,11 @@ int main(int argc, char **argv)
   //set in smaller mode for rendering
   if (argc < 3)
   {
-	  engine = new Engine("Voyager1", 800, 900);
+	  engine = new Engine("Voyager1", 800, 900, true);
   }
   else
   {
-	  engine = new Engine("Voyager1", 960, 1080);
+	  engine = new Engine("Voyager1", 960, 1080, false);
   }
 
   if(!engine->Initialize())
@@ -31,7 +31,7 @@ int main(int argc, char **argv)
   {
 	  //no arguments
 	  //run default
-	  engine->passArgs("DEFUALT", 1200.0);
+	  engine->passArgs("DEFAULT", 1200.0);
   }
   else{
 	  engine->passArgs(argv[1], std::atof(argv[2]));

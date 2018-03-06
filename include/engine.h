@@ -11,7 +11,7 @@
 class Engine
 {
   public:
-    Engine(string name, int width, int height);
+    Engine(string name, int width, int height, bool gui);
     Engine(string name);
     ~Engine();
     bool Initialize();

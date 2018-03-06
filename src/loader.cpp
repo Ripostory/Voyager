@@ -220,6 +220,7 @@ bool loader::writeImage(string filename, int width, int height)
 
 	//create image from BLOB
 	Magick::Image bloom;
+	Magick::Image finalBloom;
 	Magick::Image final;
 	final.magick("RGB");
 	final.size(Magick::Geometry(width, height, 0, 0));
@@ -229,27 +230,50 @@ bool loader::writeImage(string filename, int width, int height)
 	bloom.size(Magick::Geometry(width, height, 0, 0));
 	bloom.depth(8);
 	bloom.read(data);
+	finalBloom.magick("RGB");
+	finalBloom.size(Magick::Geometry(width, height, 0, 0));
+	finalBloom.depth(8);
+	finalBloom.read(data);
 
 	//post processing
+	finalBloom.flip();
 	bloom.flip();
 	final.flip();
 	final.opacity(0);
 	final.modulate(200.0,100.0,100.0);
 
+	float ratio = (float) width/1920.0; //make blur resolution independent
 	//blur bloom and apply it over final
-	bloom.sigmoidalContrast(1,10.0);
-	bloom.modulate(500.0,100.0,100.0);
-	bloom.blur(50.0, 50.0);
+
+	//set base
+	cout << "applying initial gaussian blur..." << endl;
+	bloom.sigmoidalContrast(1,20.0);
+	finalBloom.sigmoidalContrast(1,20.0);
+	finalBloom.gaussianBlur(0.0, 10.0*ratio);
+
+	//convolution
+	float power = 20.0f;
+	for (int i = 0; i < 3; i++)
+	{
+		cout << "applying blur convolution " << i+1;
+		cout << " using radius " << power*ratio << "..." << endl;
+		bloom.gaussianBlur(0.0, power*ratio);
+		finalBloom.composite(bloom, 0, 0, Magick::PlusCompositeOp);
+		power += 10.0f;
+	}
 
 	//perform screen operation 1 - (1-picture1) * (1-picture2)
+	cout << "performing final composition..." << endl;
+	final.negate();
+	finalBloom.negate();
+	final.composite(finalBloom, 0, 0, Magick::MultiplyCompositeOp);
+	final.negate();
 
-	final.negate();
-	bloom.negate();
-	final.composite(bloom, 0, 0, Magick::MultiplyCompositeOp);
-	final.negate();
+	//final image adjustments
+	final.modulate(100.0, 110.0, 100.0);
 
 	final.write(filename + ".png");
-	//delete[] buffer;
+	delete[] buffer;
 
 	return true;
 }
