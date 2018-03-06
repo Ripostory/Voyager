@@ -8,6 +8,7 @@ varying vec2 tCoord;
 
 uniform float inpSeed;
 uniform float radius;
+uniform mat4 roll;
 uniform vec3 color1;
 uniform vec3 color2;
 uniform vec3 color3;
@@ -18,30 +19,32 @@ uniform vec3 lightPos;
 uniform vec3 center;
 uniform vec2 warp;
 
+uniform vec3 childPos;
+uniform float childRad;
+
 //function definitions
 float rand(vec2 c);
 float noise(vec2 p, float freq );
-float noise(vec2 p, float freq, float stretch );
 float pNoise(vec2 p, int res, float seed, float freq);
-float perlin(vec2 domain, int resolution, float seed, float amplitude, float frequency, float weight);
-vec2 fbm(vec2 domain, float seed, float amplitude, float frequency);
 float normalDistr(vec3 N, vec3 H, float roughness);
 float geometrySchlick(float NV, float roughness);
 float geometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
+float perlin(vec2 domain, int resolution, float seed, float amplitude, float frequency, float weight);
 float raySphereIntersect(float radius, vec3 camPos);
+float raySphereIntersect(float radius, vec3 camPos, vec3 pCenter);
+float distort(vec2 domain, float seed, out vec2 first, out vec2 second);
+vec2 fbm(vec2 domain, float seed, float amplitude, float frequency);
 vec3 fresnel(float cTheta, vec3 F0);
 
-float distort(vec2 domain, float seed, out vec2 first, out vec2 second);
-
 #define PI 3.1415926
-
 
 void main(void)
 {	
 	//generate terrain
 	vec2 testColor;
 	vec2 testColor2;
-	vec3 perlinOutput = vec3(distort(tCoord*warp, inpSeed, testColor, testColor2));
+	vec4 domainMod = roll*vec4(tCoord.x, tCoord.y, 0, 1);
+	vec3 perlinOutput = vec3(distort(domainMod.xy*warp, inpSeed, testColor, testColor2));
 	float chooser = pNoise(testColor, 20, 3, 8);
 	float chooser2 = pNoise(testColor2, 20, 3, 8);
 
@@ -70,7 +73,7 @@ void main(void)
 	
     //begin lighting calculations
     float metallic = (chooser2 + 0.3) * warp.x; //disables metallic if theres warp
-    float roughness = 1-metallic;
+    float roughness = 1 - metallic;
 
     //radiance calcuations
     vec3 F0 = vec3(0.04); //dielectric constant
@@ -90,29 +93,66 @@ void main(void)
     finalDiff *= 1.0 - metallic;
 
     float lightAngle = max(dot(N, L), 0.0);
+
+    //calculate child planet shadow
+    float childDiff = 1.0f;
+
+    //check if intersects child planet
+    float connect = raySphereIntersect(childRad, lightPos*100.0f, childPos);
+
+    //will darken if a collision occurs
+    childDiff = 1 - clamp(pow(connect/(childRad*2.0), 2.0),0,1);
+
+    //negate if currently rendering child
+    if (childRad == radius)
+    {
+    	childDiff = 1.0f;
+    }
+
+
+    //calculate final diffuse component
+    lightAngle *= clamp(childDiff,0,1);
+
     vec3 finalLight = (finalDiff * finalColor / 3.1415 + specular) * lightColor * lightAngle;
 
     //atmosphere effects
-	vec3 atmColor = mix(horizon, atmosphere, lightAngle);
 	//calculate atmosphere scattering using ray sphere intersection
-	float influence =
-			raySphereIntersect(radius+0.05, viewPos) -
-			raySphereIntersect(radius, viewPos);
-	float power =  clamp(influence,0,1) * clamp(lightAngle, 0 ,1) * 5;
-	vec3 atmOut = power * atmColor;
+    float atmHeight = raySphereIntersect(radius+0.05, viewPos);
+    float surfHeight = raySphereIntersect(radius, viewPos);
 
-	//blend
+    //get atmosphere thickness from difference
+	float influence = atmHeight - surfHeight;
+
+	//get final atmosphere component
+	float power =  clamp(influence,0,1) * clamp(lightAngle, 0 ,1) * 5;
+	power  = max(power, 0.0);
+
+	//calculate atmosphere color
+	float atmLight = raySphereIntersect(radius+0.05, lightPos*100.0f);
+	float surfLight = raySphereIntersect(radius, lightPos*100.0f);
+	float lighting = atmLight - surfLight;
+	//adjust color influence
+	vec3 atmColor = mix(atmosphere, horizon, pow(lighting, 0.3));
+	vec3 atmOut = power * atmColor;
+	//clamp
+	atmOut = max(atmOut, 0.0);
+
+	//perform screen blend
 	vec3 final = 1 - (1 - finalLight) * (1 - atmOut);
 	gl_FragColor = vec4(final, 1.0f);
 }
 
-
 float raySphereIntersect(float radius, vec3 camPos)
 {
-	//try distance
+	return raySphereIntersect(radius, camPos, center);
+}
+
+float raySphereIntersect(float radius, vec3 camPos, vec3 pCenter)
+{
 	vec3 rayA = camPos - fragPos; //get ray from camera to pixel
-	vec3 rayB = camPos - center; //get ray from camera to center L
-	//get theta
+	vec3 rayB = camPos - pCenter; //get ray from camera to center L
+
+	//get cos theta
 	float theta = dot(normalize(rayA), normalize(rayB));
 	//project b (length of radius) onto a
 	float tc = length(rayB)*theta;
@@ -124,7 +164,6 @@ float raySphereIntersect(float radius, vec3 camPos)
 	//get final contribution from radius length and orhtographic length
 	float t1c = sqrt(radius*radius - d*d);
 
-	//multiply by 2 to get full length of ray inside sphere
 	return t1c;
 }
 

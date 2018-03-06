@@ -48,7 +48,11 @@ private:
 	glm::vec3 lightPos;
 	glm::vec2 distort;
 
+	glm::vec3 childPos;
+	float childRad;
+
 	float seed;
+	float roll;
 	bool isGiant;
 };
 

@@ -12,6 +12,8 @@ Planet::Planet()
 	  loadNewModel("assets/models/planet.obj");
 	  scale(7.0f);
 	  seed = 20;
+	  roll = 0;
+	  childRad = 0;
 	  color1 = glm::vec3(0.8, 0.5, 0.1);
 	  color2 = glm::vec3(0.4, 0.9, 0.7);
 	  color3 = glm::vec3(0, 0.4, 0.5);
@@ -57,8 +59,15 @@ void Planet::Render(Shader *ref)
 	position.y = model[3][1];
 	position.z = model[3][2];
 	float radius = model[0][0];
+	glm::mat4 rollRotate;
+	rollRotate = glm::rotate(roll*10.0f, glm::vec3(0,0,1));
 	glUniform3fv(ref->GetUniformLocation("center"),1, glm::value_ptr(position));
 	glUniform1f(ref->GetUniformLocation("radius"), radius);
+	glUniformMatrix4fv(ref->GetUniformLocation("roll"),1, false, glm::value_ptr(rollRotate));
+
+	//pass in child planet coordinates
+	glUniform3fv(ref->GetUniformLocation("childPos"),1, glm::value_ptr(childPos));
+	glUniform1f(ref->GetUniformLocation("childRad"), childRad);
 
 	//render
 	Object::Render();
@@ -82,29 +91,17 @@ void Planet::generate()
 
 void Planet::generateForeground()
 {
-	//reset values
-	scale(7.0f);
-	color1 = glm::vec3(0.8, 0.5, 0.1);
-	color2 = glm::vec3(0.4, 0.9, 0.7);
-	color3 = glm::vec3(0, 0.4, 0.5);
-	color4 = glm::vec3(1, 1, 1);
-	atmosphere = glm::vec3(0.3f, 0.5f, 0.7f);
-	horizon = glm::vec3(0.8f, 0.2f, 0.1f);
-	lightPos = glm::vec3(-50.0f, 1.0f, -50.0f);
-	distort = glm::vec2(0.2,1);
-	isGiant = false;
-
+	//assume the light has already been generated
 	generate();
-	generateLight();
-
 	//frame planet
 	frame();
 }
 
 void Planet::generateChildren()
 {
-	generate();
-	//assume the light has already been generated
+	isGiant = false;
+	generateLight();
+	genMoon();
 	//place into scene
 	place();
 }
@@ -249,12 +246,15 @@ void Planet::frame()
 	move.x += (randFloat()-0.5f)*4.0;
 	move.y += (randFloat()-0.5f)*4.0;
 
+	//random roll
+	roll = randFloat();
+
 	//do a roll to determine if we want to do extreme zoom in
 	if (randFloat() < 0.3f)
 	{
 		//do extreme zoom in
 		scale((randFloat()*5.0f)+10.0f);
-		translate(move/2.0f);
+		translate(move*2.0f + glm::vec3(0,0,randFloat()*-30.0f));
 	}
 	else
 	{
@@ -265,7 +265,7 @@ void Planet::frame()
 void Planet::place()
 {
 	//place in relation to parent
-	float zPlace = (randFloat()*80.0f)+50.0f;;
+	float zPlace = -((randFloat()*80.0f)+20.0f);
 
 	//reside in a random area
 	glm::vec3 move = glm::vec3(0,0,zPlace);
@@ -273,6 +273,11 @@ void Planet::place()
 	move.y += (randFloat()-0.5f)*8.0*(zPlace/20.0f);
 
 	translate(move);
+
+	childPos = move;
+	childRad = (randFloat()*0.8f)+0.1f;
+	//make smaller
+	scale(childRad);
 
 }
 

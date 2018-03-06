@@ -7,7 +7,7 @@ Engine::Engine(string name, int width, int height)
   m_WINDOW_WIDTH = width;
   m_WINDOW_HEIGHT = height;
   m_FULLSCREEN = false;
-  GUIenabled = true;
+  GUIenabled = false;
 }
 
 Engine::Engine(string name)
