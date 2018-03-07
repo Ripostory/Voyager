@@ -246,20 +246,29 @@ bool loader::writeImage(string filename, int width, int height)
 	//blur bloom and apply it over final
 
 	//set base
-	cout << "applying initial gaussian blur..." << endl;
 	bloom.sigmoidalContrast(1,20.0);
 	finalBloom.sigmoidalContrast(1,20.0);
-	finalBloom.gaussianBlur(0.0, 10.0*ratio);
+	finalBloom.gaussianBlur(0, 10.0*ratio);
 
 	//convolution
-	float power = 20.0f;
-	for (int i = 0; i < 3; i++)
+	if (true)
 	{
-		cout << "applying blur convolution " << i+1;
-		cout << " using radius " << power*ratio << "..." << endl;
-		bloom.gaussianBlur(0.0, power*ratio);
-		finalBloom.composite(bloom, 0, 0, Magick::PlusCompositeOp);
-		power += 10.0f;
+		float power = 10.0f;
+		float size = 0.8;
+		for (int i = 0; i < 3; i++)
+		{
+			cout << "applying blur convolution " << i+1;
+			cout << " using buffer size " << size*width << "x" <<size*height << "..." << endl;
+
+			//resize for each convolution step
+			bloom.resize(Magick::Geometry(width*size, height*size, 0, 0));
+			bloom.gaussianBlur(0.0, power*ratio);
+
+			//stretch to fit
+			bloom.resize(Magick::Geometry(width, height, 0, 0));
+			finalBloom.composite(bloom, 0, 0, Magick::PlusCompositeOp);
+			size /= 1.5;
+		}
 	}
 
 	//perform screen operation 1 - (1-picture1) * (1-picture2)
@@ -272,6 +281,7 @@ bool loader::writeImage(string filename, int width, int height)
 	//final image adjustments
 	final.modulate(100.0, 110.0, 100.0);
 
+	cout << "writing image to " << filename <<".png..." << endl;
 	final.write(filename + ".png");
 	delete[] buffer;
 
