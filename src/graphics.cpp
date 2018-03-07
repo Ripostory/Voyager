@@ -96,7 +96,6 @@ void Graphics::Update(unsigned int dt)
 void Graphics::Render()
 {
   //clear the screen
-  cout << "beginning OpenGL render..." << endl;
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   glEnable(GL_CULL_FACE);
   glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -130,8 +129,6 @@ void Graphics::Render()
     string val = ErrorString( error );
     std::cout<< "Error initializing OpenGL! " << error << ", " << val << std::endl;
   }
-
-  cout << "OpenGL render finished!" << endl;
 }
 
 std::string Graphics::ErrorString(GLenum error)

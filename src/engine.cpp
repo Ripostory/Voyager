@@ -58,11 +58,14 @@ void Engine::Run()
   m_running = true;
 
   //render graphics
+  cout << "beginning OpenGL render..." << endl;
   int initialDT = getDT();
   m_graphics->Update(m_DT);
   m_graphics->Render();
+  cout << "OpenGL render finished!" << endl;
   //write to output
-  loader::writeImage(outputName, m_WINDOW_WIDTH, m_WINDOW_HEIGHT);
+  if (!GUIenabled)
+	  loader::writeImage(outputName, m_WINDOW_WIDTH, m_WINDOW_HEIGHT);
   cout << "render time: " << (float)getDT()-(float)initialDT << "ms" << endl;
 
   while(m_running && GUIenabled)
