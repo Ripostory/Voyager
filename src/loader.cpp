@@ -246,8 +246,8 @@ bool loader::writeImage(string filename, int width, int height)
 	//blur bloom and apply it over final
 
 	//set base
-	bloom.sigmoidalContrast(1,20.0);
-	finalBloom.sigmoidalContrast(1,20.0);
+	bloom.sigmoidalContrast(1,40.0);
+	finalBloom.sigmoidalContrast(1,40.0);
 	finalBloom.gaussianBlur(0, 10.0*ratio);
 
 	//convolution

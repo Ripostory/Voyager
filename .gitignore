@@ -32,3 +32,9 @@
 
 #build directory
 build/
+
+#poster items
+poster/assets
+poster/auth.py
+poster/auth.pyc
+poster/Voyager
