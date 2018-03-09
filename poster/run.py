@@ -12,7 +12,7 @@ from threading import Thread
 
 filepath = "images/"
 defaultTags = ["space","procedural generation", "voyager", "planet", "astronomy"]
-postingEnabled = False;
+postingEnabled = True;
 running = True;
 
 client =  pytumblr.TumblrRestClient(
@@ -32,9 +32,13 @@ def genName():
     picName = str(t.today())
     return picName;
 
+def genCaption():
+    newCaption = "<i>Squidolus</i> [" + genName() + "]"
+    return newCaption;
+
 def post(image, cap, tag):
     client.create_photo(
-        blogName, 
+        auth.blogName, 
         state="published", 
         tags=tag,
         caption=cap,
@@ -45,11 +49,12 @@ def post(image, cap, tag):
 def postAll():
     imgSeed = str(random())
     imgName = genName()
+    imgCaption = genCaption()
     genImage(filepath + imgName, imgSeed)
     print('rendering program finished.')
     if postingEnabled:
-        post(imgName, "this is a test", defaultTags)
-        print("posted")
+        post(imgName, imgCaption, defaultTags)
+        print("posted with caption: " + imgCaption)
     return;
 
 #threaded runner that posts daily
@@ -62,6 +67,7 @@ def runPoster():
     return;
 
 #main function
+postAll()
 thread = Thread(target = runPoster)
 thread.start()
 while running:

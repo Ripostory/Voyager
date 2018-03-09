@@ -281,6 +281,11 @@ bool loader::writeImage(string filename, int width, int height)
 	//final image adjustments
 	final.modulate(100.0, 110.0, 100.0);
 
+	//use LUT to color correct
+	Magick::Image lut;
+	lut.read("assets/planetLUT.png");
+	final.haldClut(lut);
+
 	cout << "writing image to " << filename <<".png..." << endl;
 	final.write(filename + ".png");
 	delete[] buffer;
