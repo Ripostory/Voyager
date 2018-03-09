@@ -15,6 +15,9 @@ defaultTags = ["space","procedural generation", "voyager", "planet", "astronomy"
 postingEnabled = True;
 running = True;
 
+#date of initial departure
+epoch = datetime.datetime(2017, 7, 3, 20, 11, 0, 0)
+
 client =  pytumblr.TumblrRestClient(
     auth.auth1,
     auth.auth2,
@@ -29,11 +32,19 @@ def genImage(name, seed):
 
 def genName():
     t = datetime.date
-    picName = str(t.today())
+    h = datetime.datetime.now()
+    picName = str(t.today()) + '_' + str(h.hour)
     return picName;
 
+def getTime():
+    first = epoch
+    now = datetime.datetime.now()
+    delta = now - first 
+    newTime = str("Day:" + str(delta.days) + " Hour:" + str(delta.seconds//3600))
+    return newTime;
+
 def genCaption():
-    newCaption = "<i>Squidolus</i> [" + genName() + "]"
+    newCaption = "<i>Squidolus</i> [" + getTime() + "]"
     return newCaption;
 
 def post(image, cap, tag):
@@ -47,7 +58,7 @@ def post(image, cap, tag):
     return;
 
 def postAll():
-    imgSeed = str(random())
+    imgSeed = str(random()*2000.0-1000.0)
     imgName = genName()
     imgCaption = genCaption()
     genImage(filepath + imgName, imgSeed)
@@ -61,13 +72,13 @@ def postAll():
 def runPoster():
     #set schedule
     schedule.every().day.at("20:30").do(postAll)
+    schedule.every().day.at("8:30").do(postAll)
     while running:
         schedule.run_pending()
         time.sleep(5)
     return;
 
 #main function
-postAll()
 thread = Thread(target = runPoster)
 thread.start()
 while running:
