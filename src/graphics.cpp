@@ -48,7 +48,7 @@ bool Graphics::Initialize(int width, int height, bool enable)
 
   // Set up the shaders
   m_shader = new Shader();
-  if(!m_shader->buildShader("assets/shaders/test.vert", "assets/shaders/test.frag"))
+  if(!m_shader->buildShader("assets/shaders/gas.vert", "assets/shaders/gas.frag"))
 	  return false;
 
   // Locate the projection matrix in the shader
@@ -77,6 +77,7 @@ bool Graphics::Initialize(int width, int height, bool enable)
 
   //enable depth testing
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_MULTISAMPLE);
   glDepthFunc(GL_LESS);
 
   return true;
