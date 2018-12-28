@@ -2,6 +2,11 @@
 
 Object::Object()
 {  
+	//init matrices
+	model = glm::mat4(1.0f);
+	m_translate = glm::mat4(1.0f);
+	m_rotate = glm::mat4(1.0f);
+	m_scale = glm::mat4(1.0f);
 }
 
 Object::~Object()

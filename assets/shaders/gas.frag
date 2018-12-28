@@ -47,14 +47,16 @@ void main(void)
 	vec2 testColor;
 	vec2 testColor2;
 	vec4 domainMod = roll*vec4(tCoord.x, tCoord.y, 0, 1);
-	vec3 perlinOutput = vec3(distort(domainMod.xy*vec2(1, 0.2), inpSeed, testColor, testColor2));
+	vec2 domainFinal = domainMod.xy*vec2(7, 1);
+	vec3 perlinOutput = vec3(distort(domainFinal, inpSeed, testColor, testColor2));
 	float chooser = pNoise(testColor, 20, 3, 8);
 	float chooser2 = pNoise(testColor2, 20, 3, 8);
 
 	vec3 colorMix = mix(color1, color2, chooser*6);
 	vec3 colorMix2 = mix(color3, color4, chooser2*6);
 
-	vec3 finalColor = (colorMix+colorMix2)*pow(perlinOutput.x, 1);
+	vec3 finalColor = perlinOutput*(colorMix+colorMix2);
+	//finalColor = colorMix2;
 
 
 	/*
@@ -65,11 +67,10 @@ void main(void)
 	vec3 lightColor = vec3(5.0f, 4.0f, 3.0f);
 
 	//get normals output from perlin output
-	vec2 base = domainMod.xy*vec2(1, 0.2);
+	vec2 base = domainFinal;
 	float AO = sampleAO(base, 0.05);
 	AO *= pow(sampleAO(base, 0.01), 1.1);
 	AO *= pow(sampleAO(base, 0.005), 1.4);
-
 
 	//calculate lighting vectors
 	vec3 lightDir = lightPos; //directional light, all comes from same angle
@@ -268,7 +269,7 @@ float distort(vec2 domain, float seed, out vec2 first, out vec2 second)
     second = fbm(domain + 4.0*first, seed+2.0232, amp *= 0.5, freq += 2.0);
 
     //collapse to noise output
-    return noise(domain + 4.0*second, 30);
+    return noise(domain + 4.0*second, 8);
 }
 
 float distort(vec2 domain, float seed)
