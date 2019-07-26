@@ -2,11 +2,6 @@
 
 Object::Object()
 {  
-	//init matrices
-	model = glm::mat4(1.0f);
-	m_translate = glm::mat4(1.0f);
-	m_rotate = glm::mat4(1.0f);
-	m_scale = glm::mat4(1.0f);
 }
 
 Object::~Object()
@@ -90,11 +85,6 @@ void Object::Update(unsigned int dt)
 {
 }
 
-glm::mat4 Object::GetModel()
-{
-  return model;
-}
-
 void Object::Render()
 {
 	  //note: draws only the model itself, does not bind textures
@@ -115,37 +105,3 @@ void Object::Render()
 	  glDisableVertexAttribArray(1);
 	  glDisableVertexAttribArray(2);
 }
-
-void Object::translate(glm::vec3 move)
-{
-	m_translate = glm::translate(move);
-	updateMatrix();
-}
-
-void Object::scale(float size)
-{
-	m_scale = glm::scale(glm::vec3(size));
-	updateMatrix();
-}
-
-void Object::rotate(float degree, glm::vec3 axis)
-{
-	m_rotate = glm::rotate(degree, axis);
-	updateMatrix();
-}
-
-void Object::updateMatrix()
-{
-	model = m_translate * m_scale * m_rotate;
-}
-
-
-
-
-
-
-
-
-
-
-

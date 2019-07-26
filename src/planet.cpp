@@ -55,10 +55,11 @@ void Planet::Render(Shader *ref)
 
 	//pass in planet center
 	glm::vec3 position;
-	position.x = model[3][0];
-	position.y = model[3][1];
-	position.z = model[3][2];
-	float radius = model[0][0];
+	glm::mat4 modelMatrix = getModel();
+	position.x = modelMatrix[3][0];
+	position.y = modelMatrix[3][1];
+	position.z = modelMatrix[3][2];
+	float radius = modelMatrix[0][0];
 	glm::mat4 rollRotate;
 	rollRotate = glm::rotate(roll*10.0f, glm::vec3(0,0,1));
 	glUniform3fv(ref->GetUniformLocation("center"),1, glm::value_ptr(position));
