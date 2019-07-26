@@ -49,9 +49,9 @@ public:
 	loader();
 	~loader();
 
-	bool loadObject(string, obj&);
+	obj loadObject(string filename);
 	string loadShader(string filename);
-	bool loadTexture(string, Texture&);
+	Texture loadTexture(string filename);
 	static bool writeImage(string, int, int);
 
 };

@@ -25,10 +25,13 @@ void Object::loadNewModel(string filename)
 {
 	  loader fileLoader;
 	  obj object;
-	  if (fileLoader.loadObject(filename, object))
-	  {
+
+	  try {
+		  object = fileLoader.loadObject(filename);
 		  Vertices = object.getVerts();
 		  Indices = object.getIndices();
+	  } catch (exception& e) {
+		  cerr << e.what() << endl;
 	  }
 
 	  //model loading
@@ -50,18 +53,15 @@ void Object::loadNewTexture(string filename)
 	  glActiveTexture(GL_TEXTURE0);
 	  glBindTexture(GL_TEXTURE_2D, tex);
 
-	  //attempt to load texture
-	  if (fileLoader.loadTexture(filename, texture))
-	  {
-		  //texture loading
+	  try {
+		  texture = fileLoader.loadTexture(filename);
 		  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	  }
-	  else
-	  {
-		  //load failed, use default color
-		  unsigned char bytes[] = {1,0,1,1};
+	  } catch (exception& e) {
+		  cerr << e.what() << endl;
 
+		  //load failed, use a default color
+		  unsigned char bytes[] = {1,0,1,1};
 		  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
 	  }
 }
@@ -71,11 +71,10 @@ void Object::loadNewNormal(string filename)
 	  loader fileLoader;
 
 	  Texture texture(0,0,NULL);
-	  if (fileLoader.loadTexture(filename, texture))
-	  {
-		  //texture loaded
-		  //TODO: probably do something more
-
+	  try {
+		  texture = fileLoader.loadTexture(filename);
+	  } catch (exception& e) {
+		  cerr << e.what() << endl;
 	  }
 
 	  //texture loading

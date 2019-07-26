@@ -68,9 +68,8 @@ loader::~loader()
 {
 }
 
-bool loader::loadObject(string filename, obj &inputObj)
+obj loader::loadObject(string filename)
 {
-	aiMesh *mesh;
 	aiVector3D vert;
 	aiVector3D texture;
 	aiFace face;
@@ -79,9 +78,8 @@ bool loader::loadObject(string filename, obj &inputObj)
 	glm::vec2 tempTex;
 	int indice;
 
-	//load object from file
 	Assimp::Importer import;
-	const aiScene *scene = import.ReadFile(filename, \
+	const aiScene *rawSceneData = import.ReadFile(filename, \
 			aiProcess_CalcTangentSpace      |  \
 			aiProcess_GenNormals            |  \
 			aiProcess_JoinIdenticalVertices |  \
@@ -91,19 +89,16 @@ bool loader::loadObject(string filename, obj &inputObj)
 			0
 			);
 
-	//if fail, throw error
-	if (scene == NULL)
+	if (rawSceneData == NULL)
 	{
-		//read failed, return empty object
 		cout << "FILE " << filename << " UNABLE TO BE READ" << endl;
-		return false;
+		throw VoyagerException::ObjectFileException();
 	}
 
-	//otherwise, pack object data into the OBJ ADT and send to inputObj
-	//get mesh (should be at index 0 since it's the only mesh)
-	mesh = scene->mMeshes[0];
+	aiMesh *mesh;
+	mesh = rawSceneData->mMeshes[0];
 
-	obj final;
+	obj outputObjectCDM;
 	for (int i = 0; i < mesh->mNumVertices; i++)
 	{
 		//get vertices
@@ -124,15 +119,13 @@ bool loader::loadObject(string filename, obj &inputObj)
 			texture = mesh->mTextureCoords[0][i];
 			tempTex.x = texture.x;
 			tempTex.y = texture.y;
-			//if fails, default to 0,0 coords
 		}
 		else
 		{
 			tempTex = glm::vec2(0,0);
 		}
 
-		//push into object
-		final.addVert(Vertex(tempVec, tempColor, tempTex));
+		outputObjectCDM.addVert(Vertex(tempVec, tempColor, tempTex));
 	}
 
 	//load indices
@@ -141,41 +134,39 @@ bool loader::loadObject(string filename, obj &inputObj)
 		face = mesh->mFaces[i];
 
 		//made to only work with triangles
-		final.addIndice(face.mIndices[0]+1);
-		final.addIndice(face.mIndices[1]+1);
-		final.addIndice(face.mIndices[2]+1);
+		outputObjectCDM.addIndice(face.mIndices[0]+1);
+		outputObjectCDM.addIndice(face.mIndices[1]+1);
+		outputObjectCDM.addIndice(face.mIndices[2]+1);
 	}
 
 	mesh = NULL;
-	scene = NULL;
+	rawSceneData = NULL;
 
-	inputObj = final;
-	return true;
+	return outputObjectCDM;
 }
 
 string loader::loadShader(string filename) {
 	bool isEOF = false;
 	string outputString = "";
-	char temp;
+
 	filein.open(filename.c_str());
 
 	if (filein.fail())
 	{
-		//read failed, return empty object
 		cerr << "FILE " << filename << " UNABLE TO BE READ" << endl;
-		throw "TODO throw proper exception";
+		throw VoyagerException::ShaderFileException();
 	}
 
 	//load file
+	char currentChar;
 	while(!isEOF) {
-		temp = filein.get();
+		currentChar = filein.get();
 		if (filein.eof())
 		{
 			isEOF = true;
-			//throw away EOF bit
 		} else
 		{
-			outputString += temp;
+			outputString += currentChar;
 		}
 	}
 
@@ -183,12 +174,11 @@ string loader::loadShader(string filename) {
 	return outputString;
 }
 
-bool loader::loadTexture(string filename, Texture &output)
+Texture loader::loadTexture(string filename)
 {
 	Magick::Blob blob;
 	Magick::Image *tex;
 
-	// load texture
 	try
 	{
 		tex = new Magick::Image(filename);
@@ -197,13 +187,13 @@ bool loader::loadTexture(string filename, Texture &output)
 	catch (Magick::Error& Error)
 	{
 		cout << "Error loading Texture " << filename << ": " << Error.what() << endl;
-		return false;
+		throw VoyagerException::TextureFileException();
 	}
 
-	//extract data
+	//TODO cleanup to decouple opengl from loader
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->columns(), tex->rows(), 0, GL_RGBA, GL_UNSIGNED_BYTE, blob.data());
 	delete tex;
-	return true;
+	return Texture(tex->rows(), tex->columns(), NULL);
 }
 
 bool loader::writeImage(string filename, int width, int height)
