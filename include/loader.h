@@ -23,7 +23,6 @@ using namespace std;
 
 class ObjectCDM {
 private:
-	vector<glm::vec3> vertRaw;
     vector<Vertex> vertices;
     vector<unsigned int> indices;
 public:
@@ -32,11 +31,9 @@ public:
 
     void addVert(Vertex);
     void addIndice(unsigned int);
-    void addRaw(glm::vec3);
 
     vector<Vertex> getVerts();
     vector<unsigned int> getIndices();
-    vector<glm::vec3> getRawVerts();
 };
 
 class loader {

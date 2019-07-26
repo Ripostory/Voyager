@@ -13,7 +13,6 @@ ObjectCDM::ObjectCDM()
 
 ObjectCDM::~ObjectCDM()
 {
-	vertRaw.empty();
 	vertices.empty();
 	indices.empty();
 }
@@ -29,17 +28,6 @@ void ObjectCDM::addIndice(unsigned int ind)
 	indices.push_back(ind-1);
 }
 
-void ObjectCDM::addRaw(glm::vec3 raw)
-{
-	vertRaw.push_back(raw);
-
-	//allocate size for new vertex in vertices
-	glm::vec3 item;
-	glm::vec2 item2;
-	Vertex temp(item,item, item2);
-	vertices.push_back(temp);
-}
-
 vector<Vertex> ObjectCDM::getVerts()
 {
 	return vertices;
@@ -50,15 +38,13 @@ vector<unsigned int> ObjectCDM::getIndices()
 	return indices;
 }
 
-vector<glm::vec3> ObjectCDM::getRawVerts() {
-	return vertRaw;
-}
-
-
-
-
-
-
+/*
+ * ===========================================
+ *
+ * START OF LOADER CLASS
+ *
+ * ===========================================
+ */
 
 loader::loader()
 {
