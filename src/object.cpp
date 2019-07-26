@@ -24,7 +24,7 @@ Object::~Object()
 void Object::loadNewModel(string filename)
 {
 	  loader fileLoader;
-	  obj object;
+	  ObjectCDM object;
 
 	  try {
 		  object = fileLoader.loadObject(filename);
@@ -48,7 +48,7 @@ void Object::loadNewTexture(string filename)
 {
 	  loader fileLoader;
 	  Texture texture(0,0,NULL);
-
+	  //TODO try to decouple object class from opengl
 	  glGenTextures(1, &tex);
 	  glActiveTexture(GL_TEXTURE0);
 	  glBindTexture(GL_TEXTURE_2D, tex);
@@ -76,7 +76,7 @@ void Object::loadNewNormal(string filename)
 	  } catch (exception& e) {
 		  cerr << e.what() << endl;
 	  }
-
+	  //TODO try to decouple object class from opengl
 	  //texture loading
 	  glGenTextures(1, &normal);
 	  glActiveTexture(GL_TEXTURE0 +1);

@@ -21,14 +21,14 @@
 
 using namespace std;
 
-class obj {
+class ObjectCDM {
 private:
 	vector<glm::vec3> vertRaw;
     vector<Vertex> vertices;
     vector<unsigned int> indices;
 public:
-    obj();
-    ~obj();
+    ObjectCDM();
+    ~ObjectCDM();
 
     void addVert(Vertex);
     void addIndice(unsigned int);
@@ -41,15 +41,13 @@ public:
 
 class loader {
 private:
-	fstream filein;
-
 	bool isHeader(string);
 	unsigned int* getIndices(string parse);
 public:
 	loader();
 	~loader();
 
-	obj loadObject(string filename);
+	ObjectCDM loadObject(string filename);
 	string loadShader(string filename);
 	Texture loadTexture(string filename);
 	static bool writeImage(string, int, int);

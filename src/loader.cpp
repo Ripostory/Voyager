@@ -7,29 +7,29 @@
 
 #include <loader.h>
 
-obj::obj()
+ObjectCDM::ObjectCDM()
 {
 }
 
-obj::~obj()
+ObjectCDM::~ObjectCDM()
 {
 	vertRaw.empty();
 	vertices.empty();
 	indices.empty();
 }
 
-void obj::addVert(Vertex vert)
+void ObjectCDM::addVert(Vertex vert)
 {
 	vertices.push_back(vert);
 }
 
-void obj::addIndice(unsigned int ind)
+void ObjectCDM::addIndice(unsigned int ind)
 {
 	//add indice and auto fix indexing
 	indices.push_back(ind-1);
 }
 
-void obj::addRaw(glm::vec3 raw)
+void ObjectCDM::addRaw(glm::vec3 raw)
 {
 	vertRaw.push_back(raw);
 
@@ -40,17 +40,17 @@ void obj::addRaw(glm::vec3 raw)
 	vertices.push_back(temp);
 }
 
-vector<Vertex> obj::getVerts()
+vector<Vertex> ObjectCDM::getVerts()
 {
 	return vertices;
 }
 
-vector<unsigned int> obj::getIndices()
+vector<unsigned int> ObjectCDM::getIndices()
 {
 	return indices;
 }
 
-vector<glm::vec3> obj::getRawVerts() {
+vector<glm::vec3> ObjectCDM::getRawVerts() {
 	return vertRaw;
 }
 
@@ -68,7 +68,7 @@ loader::~loader()
 {
 }
 
-obj loader::loadObject(string filename)
+ObjectCDM loader::loadObject(string filename)
 {
 	aiVector3D vert;
 	aiVector3D texture;
@@ -98,7 +98,7 @@ obj loader::loadObject(string filename)
 	aiMesh *mesh;
 	mesh = rawSceneData->mMeshes[0];
 
-	obj outputObjectCDM;
+	ObjectCDM outputObjectCDM;
 	for (int i = 0; i < mesh->mNumVertices; i++)
 	{
 		//get vertices
@@ -146,6 +146,7 @@ obj loader::loadObject(string filename)
 }
 
 string loader::loadShader(string filename) {
+	fstream filein;
 	bool isEOF = false;
 	string outputString = "";
 
