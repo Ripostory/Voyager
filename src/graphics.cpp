@@ -45,6 +45,7 @@ bool Graphics::Initialize(int width, int height, bool enable)
 
   // Create the object
   m_cube = new Planet();
+  m_cube->initialize();
 
   // Set up the shaders
   m_shader = new Shader();

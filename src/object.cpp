@@ -2,41 +2,17 @@
 
 Object::Object()
 {  
+	renderer = new ModelRenderer();
+	addComponent(renderer);
 }
 
 Object::~Object()
 {
-	  Vertices.clear();
-	  Indices.clear();
-
-	  //clean buffers
-	  glDeleteBuffers(1, &VB);
-	  glDeleteBuffers(1, &IB);
-	  glDeleteTextures(1, &tex);
-	  glDeleteTextures(1, &normal);
 }
 
 void Object::loadNewModel(string filename)
 {
-	  loader fileLoader;
-	  Model object;
-
-	  try {
-		  object = fileLoader.loadObject(filename);
-		  Vertices = object.vertices;
-		  Indices = object.indices;
-	  } catch (exception& e) {
-		  cerr << e.what() << endl;
-	  }
-
-	  //model loading
-	  glGenBuffers(1, &VB);
-	  glBindBuffer(GL_ARRAY_BUFFER, VB);
-	  glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * (Vertices.size()+1), &Vertices[0], GL_STATIC_DRAW);
-
-	  glGenBuffers(1, &IB);
-	  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IB);
-	  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * Indices.size(), &Indices[0], GL_STATIC_DRAW);
+	renderer->loadModel(filename);
 }
 
 void Object::loadNewTexture(string filename)
@@ -87,21 +63,5 @@ void Object::Update(unsigned int dt)
 
 void Object::Render()
 {
-	  //note: draws only the model itself, does not bind textures
-	  glEnableVertexAttribArray(0);
-	  glEnableVertexAttribArray(1);
-	  glEnableVertexAttribArray(2);
-
-	  glBindBuffer(GL_ARRAY_BUFFER, VB);
-	  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-	  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,color));
-	  glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,texCoord));
-
-	  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IB);
-
-	  glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, 0);
-
-	  glDisableVertexAttribArray(0);
-	  glDisableVertexAttribArray(1);
-	  glDisableVertexAttribArray(2);
+	renderer->render();
 }

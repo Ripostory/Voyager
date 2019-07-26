@@ -5,6 +5,7 @@
 #include "entity.h"
 #include "loader.h"
 #include "event.h"
+#include "modelRenderer.h"
 
 #define SPEED_STEP 0.2f
 
@@ -20,12 +21,9 @@ class Object : public Entity
     virtual void Render();
 
   private:
-    std::vector<Vertex> Vertices;
-    std::vector<unsigned int> Indices;
-    GLuint VB;
-    GLuint IB;
     GLuint tex;
     GLuint normal;
+    ModelRenderer *renderer;
 
 };
 

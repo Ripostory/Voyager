@@ -14,6 +14,8 @@
 #include "component.h"
 #include <vector>
 
+class Component;
+
 class Entity {
 private:
 	glm::mat4 m_translate;

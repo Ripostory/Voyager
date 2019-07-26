@@ -23,6 +23,8 @@ Entity::~Entity() {
 	vector<Component*>::iterator it;
 	for (it = components.begin(); it != components.end(); it++) {
 		(*it)->remove();
+		delete (*it);
+		(*it) = NULL;
 	}
 }
 

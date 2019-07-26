@@ -24,6 +24,9 @@ void Component::update() {
 }
 
 void Component::remove() {
+	parent = NULL;
+	name = "";
+	typeID = componentTypeID::basic;
 }
 
 componentTypeID Component::getComponentTypeID() {
