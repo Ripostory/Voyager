@@ -31,22 +31,13 @@ bool Shader::Initialize()
   return true;
 }
 
-// Use this method to add shaders to the program. When finished - call finalize()
+
 bool Shader::AddShader(GLenum ShaderType, string filename)
 {
-  std::string s;
+  std::string shaderCode;
   loader loadShader;
 
-  if(ShaderType == GL_VERTEX_SHADER)
-  {
-
-	loadShader.loadShader(filename, s);
-  }
-  else if(ShaderType == GL_FRAGMENT_SHADER)
-  {
-	loadShader.loadShader(filename, s);
-  }
-
+  shaderCode = loadShader.loadShader(filename);
   GLuint ShaderObj = glCreateShader(ShaderType);
 
   if (ShaderObj == 0) 
@@ -58,11 +49,11 @@ bool Shader::AddShader(GLenum ShaderType, string filename)
   // Save the shader object - will be deleted in the destructor
   m_shaderObjList.push_back(ShaderObj);
 
-  const GLchar* p[1];
-  p[0] = s.c_str();
-  GLint Lengths[1] = { (GLint)s.size() };
+  const GLchar* rawShaderCodeData[1];
+  rawShaderCodeData[0] = shaderCode.c_str();
+  GLint shaderCodeSize[1] = { (GLint)shaderCode.size() };
 
-  glShaderSource(ShaderObj, 1, p, Lengths);
+  glShaderSource(ShaderObj, 1, rawShaderCodeData, shaderCodeSize);
 
   glCompileShader(ShaderObj);
 

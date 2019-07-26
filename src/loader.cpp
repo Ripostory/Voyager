@@ -62,12 +62,10 @@ vector<glm::vec3> obj::getRawVerts() {
 
 loader::loader()
 {
-	isEOF = false;
 }
 
 loader::~loader()
 {
-	isEOF = false;
 }
 
 bool loader::loadObject(string filename, obj &inputObj)
@@ -155,17 +153,17 @@ bool loader::loadObject(string filename, obj &inputObj)
 	return true;
 }
 
-bool loader::loadShader(string filename, string& output) {
-	isEOF = false;
-	string final = "";
+string loader::loadShader(string filename) {
+	bool isEOF = false;
+	string outputString = "";
 	char temp;
 	filein.open(filename.c_str());
 
 	if (filein.fail())
 	{
 		//read failed, return empty object
-		cout << "FILE " << filename << " UNABLE TO BE READ" << endl;
-		return false;
+		cerr << "FILE " << filename << " UNABLE TO BE READ" << endl;
+		throw "TODO throw proper exception";
 	}
 
 	//load file
@@ -177,15 +175,12 @@ bool loader::loadShader(string filename, string& output) {
 			//throw away EOF bit
 		} else
 		{
-			final += temp;
+			outputString += temp;
 		}
 	}
 
-	//return file
-	output = final;
-
 	filein.close();
-	return true;
+	return outputString;
 }
 
 bool loader::loadTexture(string filename, Texture &output)

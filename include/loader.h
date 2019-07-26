@@ -42,7 +42,6 @@ public:
 class loader {
 private:
 	fstream filein;
-	bool isEOF;
 
 	bool isHeader(string);
 	unsigned int* getIndices(string parse);
@@ -51,7 +50,7 @@ public:
 	~loader();
 
 	bool loadObject(string, obj&);
-	bool loadShader(string, string&);
+	string loadShader(string filename);
 	bool loadTexture(string, Texture&);
 	static bool writeImage(string, int, int);
 
