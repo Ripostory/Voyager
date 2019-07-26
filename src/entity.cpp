@@ -45,7 +45,7 @@ void Entity::updateMatrix()
 	model = m_translate * m_scale * m_rotate;
 }
 
-glm::mat4 Entity::getModel()
+glm::mat4 Entity::getModelMatrix()
 {
   return model;
 }

@@ -25,7 +25,7 @@ public:
     void translate(glm::vec3 position);
     void scale(float scaleAmount);
     void rotate(float, glm::vec3 gimbal);
-    glm::mat4 getModel();
+    glm::mat4 getModelMatrix();
 };
 
 

@@ -118,7 +118,7 @@ void Graphics::Render()
 
   // Render the main object
   m_cube->generateForeground();
-  glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(m_cube->getModel()));
+  glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(m_cube->getModelMatrix()));
   m_cube->Render(m_shader);
 
 

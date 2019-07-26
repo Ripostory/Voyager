@@ -55,7 +55,7 @@ void Planet::Render(Shader *ref)
 
 	//pass in planet center
 	glm::vec3 position;
-	glm::mat4 modelMatrix = getModel();
+	glm::mat4 modelMatrix = getModelMatrix();
 	position.x = modelMatrix[3][0];
 	position.y = modelMatrix[3][1];
 	position.z = modelMatrix[3][2];
