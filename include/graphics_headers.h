@@ -3,16 +3,17 @@
 
 #include <iostream>
 #include <voyager_exceptions.h>
+#include <vector>
 
 #define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
 #define GLM_ENABLE_EXPERIMENTAL
 
 #if defined(__APPLE__) || defined(MACOSX)
-  #include <OpenGL/gl3.h>
-  #include <OpenGL/GLU.h>
+#include <OpenGL/gl3.h>
+#include <OpenGL/GLU.h>
 #else //linux as default
-  #include <GL/glew.h>
-  //#include <GL/glu.h>
+#include <GL/glew.h>
+//#include <GL/glu.h>
 #endif
 
 // GLM for matricies
@@ -24,22 +25,38 @@
 
 #define INVALID_UNIFORM_LOCATION 0x7fffffff
 
-struct Vertex
-{
-  glm::vec3 vertex;
-  glm::vec3 color;
-  glm::vec2 texCoord;
+struct Vertex {
+	glm::vec3 vertex;
+	glm::vec3 color;
+	glm::vec2 texCoord;
 
-  Vertex(glm::vec3 v, glm::vec3 c, glm::vec2 t): vertex(v), color(c), texCoord(t){}
+	Vertex(glm::vec3 v, glm::vec3 c, glm::vec2 t) :
+			vertex(v), color(c), texCoord(t) {
+	}
 };
 
-struct Texture
-{
-  size_t row;
-  size_t column;
-  const void *data;
+struct Texture {
+	size_t row;
+	size_t column;
+	const void *data;
 
-  Texture(size_t r, size_t c, const void* d): row(r), column(c), data(d)  {}
+	Texture(size_t r, size_t c, const void* d) :
+			row(r), column(c), data(d) {
+	}
+};
+
+struct Model {
+	vector<Vertex> vertices;
+	vector<unsigned int> indices;
+
+	void addVert(Vertex vert) {
+		vertices.push_back(vert);
+	}
+	;
+	void addIndice(unsigned int indice) {
+		indices.push_back(indice - 1);
+	}
+	;
 };
 
 #endif /* GRAPHICS_HEADERS_H */

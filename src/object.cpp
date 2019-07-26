@@ -24,12 +24,12 @@ Object::~Object()
 void Object::loadNewModel(string filename)
 {
 	  loader fileLoader;
-	  ObjectCDM object;
+	  Model object;
 
 	  try {
 		  object = fileLoader.loadObject(filename);
-		  Vertices = object.getVerts();
-		  Indices = object.getIndices();
+		  Vertices = object.vertices;
+		  Indices = object.indices;
 	  } catch (exception& e) {
 		  cerr << e.what() << endl;
 	  }

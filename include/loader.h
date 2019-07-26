@@ -16,25 +16,9 @@
 #include <assimp/color4.h> //includes the aiColor4 object, which is used to handle the colors from the mesh objects
 #include <Magick++.h>
 #include <magick/blob.h>
-#include <vector>
 #include "graphics_headers.h"
 
 using namespace std;
-
-class ObjectCDM {
-private:
-    vector<Vertex> vertices;
-    vector<unsigned int> indices;
-public:
-    ObjectCDM();
-    ~ObjectCDM();
-
-    void addVert(Vertex);
-    void addIndice(unsigned int);
-
-    vector<Vertex> getVerts();
-    vector<unsigned int> getIndices();
-};
 
 class loader {
 private:
@@ -44,7 +28,7 @@ public:
 	loader();
 	~loader();
 
-	ObjectCDM loadObject(string filename);
+	Model loadObject(string filename);
 	string loadShader(string filename);
 	Texture loadTexture(string filename);
 	static bool writeImage(string, int, int);

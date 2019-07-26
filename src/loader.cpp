@@ -7,45 +7,6 @@
 
 #include <loader.h>
 
-ObjectCDM::ObjectCDM()
-{
-}
-
-ObjectCDM::~ObjectCDM()
-{
-	vertices.empty();
-	indices.empty();
-}
-
-void ObjectCDM::addVert(Vertex vert)
-{
-	vertices.push_back(vert);
-}
-
-void ObjectCDM::addIndice(unsigned int ind)
-{
-	//add indice and auto fix indexing
-	indices.push_back(ind-1);
-}
-
-vector<Vertex> ObjectCDM::getVerts()
-{
-	return vertices;
-}
-
-vector<unsigned int> ObjectCDM::getIndices()
-{
-	return indices;
-}
-
-/*
- * ===========================================
- *
- * START OF LOADER CLASS
- *
- * ===========================================
- */
-
 loader::loader()
 {
 }
@@ -54,7 +15,7 @@ loader::~loader()
 {
 }
 
-ObjectCDM loader::loadObject(string filename)
+Model loader::loadObject(string filename)
 {
 	aiVector3D vert;
 	aiVector3D texture;
@@ -84,7 +45,7 @@ ObjectCDM loader::loadObject(string filename)
 	aiMesh *mesh;
 	mesh = rawSceneData->mMeshes[0];
 
-	ObjectCDM outputObjectCDM;
+	Model outputObjectCDM;
 	for (int i = 0; i < mesh->mNumVertices; i++)
 	{
 		//get vertices
