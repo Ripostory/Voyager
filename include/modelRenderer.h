@@ -22,9 +22,9 @@ private:
 public:
     ModelRenderer();
     ~ModelRenderer();
-	virtual void update();
-	virtual void remove();
-	void render();
+	virtual void update() override;
+	virtual void remove() override;
+	void render() override;
 	void loadModel(string model);
 	void setRenderable(bool isRenderable);
 };

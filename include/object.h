@@ -6,6 +6,7 @@
 #include "loader.h"
 #include "event.h"
 #include "modelRenderer.h"
+#include "textureComponent.h"
 
 #define SPEED_STEP 0.2f
 
@@ -21,9 +22,9 @@ class Object : public Entity
     virtual void Render();
 
   private:
-    GLuint tex;
-    GLuint normal;
     ModelRenderer *renderer;
+    TextureComponent *texture;
+    TextureComponent *normal;
 
 };
 

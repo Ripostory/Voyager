@@ -36,3 +36,6 @@ componentTypeID Component::getComponentTypeID() {
 string Component::getName() {
 	return name;
 }
+
+void Component::render() {
+}

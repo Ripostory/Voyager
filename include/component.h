@@ -35,6 +35,7 @@ public:
 	virtual void initialize(Entity* parent);
 	virtual void update();
 	virtual void remove();
+	virtual void render();
 	componentTypeID getComponentTypeID();
 	string getName();
 };
