@@ -11,10 +11,11 @@
 #define INCLUDE_ENTITY_H_
 
 #include "graphics_headers.h"
-#include "component.h"
+#include "componentHandler.h"
 #include <vector>
 
 class Component;
+class ComponentHandler;
 
 class Entity {
 private:
@@ -22,7 +23,7 @@ private:
 	glm::mat4 m_rotate;
 	glm::mat4 m_scale;
 	glm::mat4 model;
-	vector<Component*> components;
+	ComponentHandler* components;
 	void updateMatrix();
 public:
 	Entity();

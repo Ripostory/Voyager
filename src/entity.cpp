@@ -12,6 +12,8 @@ Entity::Entity() {
 	m_translate = glm::mat4(1.0f);
 	m_rotate = glm::mat4(1.0f);
 	m_scale = glm::mat4(1.0f);
+	components = new ComponentHandler();
+	components->setParent(this);
 }
 
 Entity::~Entity() {
@@ -19,32 +21,20 @@ Entity::~Entity() {
 	m_translate = glm::mat4(0.0f);
 	m_rotate = glm::mat4(0.0f);
 	m_scale = glm::mat4(0.0f);
-
-	vector<Component*>::iterator it;
-	for (it = components.begin(); it != components.end(); it++) {
-		(*it)->remove();
-		delete (*it);
-		(*it) = NULL;
-	}
+	delete components;
 }
 
 void Entity::initialize() {
-	vector<Component*>::iterator it;
-	for (it = components.begin(); it != components.end(); it++) {
-		(*it)->initialize(this);
-	}
+	components->initializeComponents();
 }
 
 void Entity::update() {
-	vector<Component*>::iterator it;
-	for (it = components.begin(); it != components.end(); it++) {
-		(*it)->update();
-	}
+	components->updateComponents();
 }
 
 void Entity::addComponent(Component* component)
 {
-	components.push_back(component);
+	components->addComponent(component);
 }
 
 
