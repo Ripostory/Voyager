@@ -11,6 +11,7 @@
 #include "component.h"
 #include "entity.h"
 #include <vector>
+#include <algorithm>
 
 class Entity;
 class Component;
@@ -19,6 +20,7 @@ class ComponentHandler {
 private:
 	Entity* parent;
 	vector<Component*> components;
+	static bool componentSorter(Component* lhs,Component*  rhs);
 public:
 	ComponentHandler();
 	~ComponentHandler();

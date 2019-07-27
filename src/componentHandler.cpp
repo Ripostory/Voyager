@@ -2,7 +2,7 @@
  * componentHandler.cpp
  *
  *  Created on: Jul 26, 2019
- *      Author: nog
+ *      Author: Ronn Quijada
  */
 
 #include "componentHandler.h"
@@ -25,9 +25,13 @@ void ComponentHandler::clearComponents() {
 	}
 }
 
+bool ComponentHandler::componentSorter(Component* lhs,Component*  rhs) {
+	return (lhs->getComponentTypeID() > rhs->getComponentTypeID());
+}
+
 void ComponentHandler::addComponent(Component* component) {
 	components.push_back(component);
-	//TODO sort by presedence
+	sort(components.begin(), components.end(), componentSorter);
 }
 
 void ComponentHandler::initializeComponents() {

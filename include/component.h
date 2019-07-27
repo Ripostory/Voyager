@@ -16,6 +16,9 @@
 using namespace std;
 
 enum componentTypeID {
+	shader,
+	textureRenderer,
+	modelRenderer,
 	basic
 };
 
