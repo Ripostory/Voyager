@@ -10,17 +10,17 @@ class Shader
   public:
     Shader();
     ~Shader();
-    bool Initialize();
+    void Initialize();
     void Enable();
-    bool AddShader(GLenum ShaderType, string filename);
-    bool Finalize();
+    void AddShader(GLenum ShaderType, string filename);
+    void Finalize();
     GLint GetUniformLocation(const char* pUniformName);
 
     bool buildShader(string, string);
 
   private:
-    GLuint m_shaderProg;    
-    std::vector<GLuint> m_shaderObjList;
+    GLuint shaderProg;    
+    std::vector<GLuint> shaderObjList;
 };
 
 #endif  /* SHADER_H */

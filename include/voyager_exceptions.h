@@ -7,6 +7,8 @@
  */
 
 #include <exception>
+#include <stdio.h>
+#include <string.h>
 using namespace std;
 
 namespace VoyagerException {
@@ -32,6 +34,26 @@ struct ObjectFileException: public LoaderException {
 struct TextureFileException: public LoaderException {
 	const char* what() const throw () {
 		return "A texture filed failed to load";
+	}
+};
+
+}
+
+namespace GlException {
+
+struct GlErrorException : public exception {
+	string message;
+	GlErrorException(string e) : message(e) {}
+
+	const char* what() throw () {
+		return message.insert(0,"An Opengl Exception has occured: ").c_str();
+	}
+};
+
+struct GlShaderException : public GlErrorException {
+	GlShaderException(string e) : GlErrorException(e) {}
+	const char* what() throw () {
+		return message.insert(0,"An Opengl Shader Exception has occured: ").c_str();
 	}
 };
 
