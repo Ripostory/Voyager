@@ -28,6 +28,7 @@ public:
 	void addComponent(Component* component);
 	void initializeComponents();
 	void updateComponents();
+	void renderComponents();
 	void setParent(Entity* parent);
 };
 

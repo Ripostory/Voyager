@@ -25,6 +25,7 @@ void TextureComponent::loadTexture(string filename) {
 	  glBindTexture(GL_TEXTURE_2D, texturePointer);
 
 	  try {
+		  //TODO move actual binding of textures to here
 		  texture = fileLoader.loadTexture(filename);
 		  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

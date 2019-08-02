@@ -48,6 +48,13 @@ void ComponentHandler::updateComponents() {
 	}
 }
 
+void ComponentHandler::renderComponents() {
+	vector<Component*>::iterator it;
+	for (it = components.begin(); it != components.end(); it++) {
+		(*it)->render();
+	}
+}
+
 void ComponentHandler::setParent(Entity* parent) {
 	this->parent = parent;
 }

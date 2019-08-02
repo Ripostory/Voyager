@@ -3,11 +3,11 @@
 Object::Object()
 {  
 	renderer = new ModelRenderer();
-	addComponent(renderer);
+	components->addComponent(renderer);
 	texture = new TextureComponent();
-	addComponent(texture);
+	components->addComponent(texture);
 	normal = new TextureComponent();
-	addComponent(texture);
+	components->addComponent(texture);
 }
 
 Object::~Object()
@@ -32,9 +32,10 @@ void Object::loadNewNormal(string filename)
 
 void Object::Update(unsigned int dt)
 {
+	components->updateComponents();
 }
 
 void Object::Render()
 {
-	renderer->render();
+	components->renderComponents();
 }

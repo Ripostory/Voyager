@@ -23,8 +23,9 @@ private:
 	glm::mat4 m_rotate;
 	glm::mat4 m_scale;
 	glm::mat4 model;
-	ComponentHandler* components;
 	void updateMatrix();
+protected:
+	ComponentHandler* components;
 public:
 	Entity();
 	~Entity();
