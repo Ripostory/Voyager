@@ -21,8 +21,6 @@ class Graphics
     void setSeed(float);
 
   private:
-    std::string ErrorString(GLenum error);
-
     camera *m_camera;
     Shader *m_shader;
 

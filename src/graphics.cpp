@@ -14,7 +14,6 @@ bool Graphics::Initialize(int width, int height, bool enable)
 {
   // Used for the linux OS
   #if !defined(__APPLE__) && !defined(MACOSX)
-    // cout << glewGetString(GLEW_VERSION) << endl;
     glewExperimental = GL_TRUE;
     auto status = glewInit();
 
@@ -126,40 +125,7 @@ void Graphics::Render()
   auto error = glGetError();
   if ( error != GL_NO_ERROR )
   {
-    string val = ErrorString( error );
-    std::cout<< "Error initializing OpenGL! " << error << ", " << val << std::endl;
-  }
-}
-
-std::string Graphics::ErrorString(GLenum error)
-{
-  if(error == GL_INVALID_ENUM)
-  {
-    return "GL_INVALID_ENUM: An unacceptable value is specified for an enumerated argument.";
-  }
-
-  else if(error == GL_INVALID_VALUE)
-  {
-    return "GL_INVALID_VALUE: A numeric argument is out of range.";
-  }
-
-  else if(error == GL_INVALID_OPERATION)
-  {
-    return "GL_INVALID_OPERATION: The specified operation is not allowed in the current state.";
-  }
-
-  else if(error == GL_INVALID_FRAMEBUFFER_OPERATION)
-  {
-    return "GL_INVALID_FRAMEBUFFER_OPERATION: The framebuffer object is not complete.";
-  }
-
-  else if(error == GL_OUT_OF_MEMORY)
-  {
-    return "GL_OUT_OF_MEMORY: There is not enough memory left to execute the command.";
-  }
-  else
-  {
-    return "None";
+	  throw(GlException::GlException(error));
   }
 }
 
