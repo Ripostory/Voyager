@@ -172,7 +172,6 @@ bool loader::writeImage(string filename, int width, int height)
 	finalBloom.flip();
 	bloom.flip();
 	final.flip();
-	final.opacity(0);
 	final.modulate(200.0,100.0,100.0);
 
 	float ratio = (float) width/1920.0; //make blur resolution independent
