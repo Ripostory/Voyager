@@ -38,3 +38,6 @@ poster/assets
 poster/auth.py
 poster/auth.pyc
 poster/Voyager
+
+#VS auto generated files
+.vs/
