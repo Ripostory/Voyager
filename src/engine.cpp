@@ -123,7 +123,7 @@ unsigned int Engine::getDT()
 long long Engine::GetCurrentTimeMillis()
 {
   timeval t;
-  gettimeofday(&t, NULL);
+  getDayTime(&t, NULL);
   long long ret = t.tv_sec * 1000 + t.tv_usec / 1000;
   return ret;
 }
@@ -132,6 +132,48 @@ void Engine::passArgs(string filename, float seed)
 {
 	outputName = filename;
 	m_graphics->setSeed(seed);
+}
+
+int Engine::getDayTime(timeval* tv, timezone* tz)
+{
+#ifdef __linux__
+    return gettimeofday(tv, tz);
+#endif // __linux__
+
+#ifdef _WIN32
+    FILETIME ft;
+    unsigned __int64 tmpres = 0;
+    static int tzflag;
+
+    if (NULL != tv)
+    {
+        GetSystemTimeAsFileTime(&ft);
+
+        tmpres |= ft.dwHighDateTime;
+        tmpres <<= 32;
+        tmpres |= ft.dwLowDateTime;
+
+        /*converting file time to unix epoch*/
+        tmpres -= DELTA_EPOCH_IN_MICROSECS;
+        tmpres /= 10;  /*convert into microseconds*/
+        tv->tv_sec = (long)(tmpres / 1000000UL);
+        tv->tv_usec = (long)(tmpres % 1000000UL);
+    }
+
+    if (NULL != tz)
+    {
+        if (!tzflag)
+        {
+            _tzset();
+            tzflag++;
+        }
+        tz->tz_minuteswest = _timezone / 60;
+        tz->tz_dsttime = _daylight;
+    }
+
+    return 0;
+#endif // _WIN32
+
 }
 
 
