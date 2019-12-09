@@ -15,8 +15,15 @@
 #include <assimp/postprocess.h> //includes the postprocessing variables for the importer
 #include <assimp/color4.h> //includes the aiColor4 object, which is used to handle the colors from the mesh objects
 #include <Magick++.h>
-#include <magick/blob.h>
 #include "graphics_headers.h"
+
+#ifdef __linux__
+#include <magick/blob.h>
+#endif
+
+#ifdef _WIN32
+#include <Magick++/Blob.h>
+#endif
 
 using namespace std;
 
