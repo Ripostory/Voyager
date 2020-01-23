@@ -21,9 +21,12 @@ class Graphics
     void setSeed(float);
 
   private:
+      bool setMVPValues(Shader *shader);
+
     camera *m_camera;
     Shader *m_shader;
-
+    Shader *m_shaderNormal;
+    
     GLint m_projectionMatrix;
     GLint m_viewMatrix;
     GLint m_modelMatrix;

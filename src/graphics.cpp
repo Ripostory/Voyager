@@ -51,29 +51,13 @@ bool Graphics::Initialize(int width, int height, bool enable)
   if(!m_shader->buildShader("assets/shaders/gas.vert", "assets/shaders/gas.frag"))
 	  return false;
 
-  // Locate the projection matrix in the shader
-  m_projectionMatrix = m_shader->GetUniformLocation("projectionMatrix");
-  if (m_projectionMatrix == INVALID_UNIFORM_LOCATION) 
-  {
-    printf("m_projectionMatrix not found\n");
-    return false;
-  }
+  m_shaderNormal = new Shader();
+  if (!m_shaderNormal->buildShader("assets/shaders/test.vert", "assets/shaders/test.frag"))
+      return false;
 
-  // Locate the view matrix in the shader
-  m_viewMatrix = m_shader->GetUniformLocation("viewMatrix");
-  if (m_viewMatrix == INVALID_UNIFORM_LOCATION) 
-  {
-    printf("m_viewMatrix not found\n");
-    return false;
-  }
-
-  // Locate the model matrix in the shader
-  m_modelMatrix = m_shader->GetUniformLocation("modelMatrix");
-  if (m_modelMatrix == INVALID_UNIFORM_LOCATION) 
-  {
-    printf("m_modelMatrix not found\n");
-    return false;
-  }
+  //setup default MVP matrices
+  if (!setMVPValues(m_shader) || !setMVPValues(m_shaderNormal))
+      return false;
 
   //enable depth testing
   glEnable(GL_DEPTH_TEST);
@@ -81,6 +65,34 @@ bool Graphics::Initialize(int width, int height, bool enable)
   glDepthFunc(GL_LESS);
 
   return true;
+}
+
+bool Graphics::setMVPValues(Shader* shader) {
+    // Locate the projection matrix in the shader
+    m_projectionMatrix = shader->GetUniformLocation("projectionMatrix");
+    if (m_projectionMatrix == INVALID_UNIFORM_LOCATION)
+    {
+        printf("m_projectionMatrix not found\n");
+        return false;
+    }
+
+    // Locate the view matrix in the shader
+    m_viewMatrix = shader->GetUniformLocation("viewMatrix");
+    if (m_viewMatrix == INVALID_UNIFORM_LOCATION)
+    {
+        printf("m_viewMatrix not found\n");
+        return false;
+    }
+
+    // Locate the model matrix in the shader
+    m_modelMatrix = shader->GetUniformLocation("modelMatrix");
+    if (m_modelMatrix == INVALID_UNIFORM_LOCATION)
+    {
+        printf("m_modelMatrix not found\n");
+        return false;
+    }
+
+    return true;
 }
 
 void Graphics::setSeed(float newSeed)
@@ -104,21 +116,32 @@ void Graphics::Render()
   //generate initial
   m_cube->generateForeground();
 
-  // Start the correct program
-  m_shader->Enable();
-
-  // Send in the projection and view to the shader
-  glUniformMatrix4fv(m_projectionMatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetProjection())); 
-  glUniformMatrix4fv(m_viewMatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetView())); 
-
   //render the child
   m_cube->generateChildren();
 
   // Render the main object
   m_cube->generateForeground();
-  glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(m_cube->getModelMatrix()));
-  m_cube->Render(m_shader);
 
+  // Start the correct program
+  if (m_cube->isGiant) {
+      m_shader->Enable();
+      setMVPValues(m_shader);
+  }
+  else {
+      m_shaderNormal->Enable();
+      setMVPValues(m_shaderNormal);
+  }
+
+  // Send in the projection and view to the shader
+  glUniformMatrix4fv(m_projectionMatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetProjection()));
+  glUniformMatrix4fv(m_viewMatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetView()));
+  glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(m_cube->getModelMatrix()));
+  if (m_cube->isGiant) {
+      m_cube->Render(m_shader);
+  }
+  else {
+      m_cube->Render(m_shaderNormal);
+  }
 
 
   // Get any errors from OpenGL

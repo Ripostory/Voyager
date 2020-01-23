@@ -100,7 +100,6 @@ void Planet::generateForeground()
 
 void Planet::generateChildren()
 {
-	isGiant = false;
 	generateLight();
 	genMoon();
 	//place into scene
@@ -122,11 +121,22 @@ void Planet::genGas()
 
 	atmosphere = cooler((color1+color2)/2.0f, seededRand());
 	horizon = warmer(complement(atmosphere), seededRand());
+
+	if (seededRand() < 0.5) {
+		//completely random color
+		color1 = randVec3();
+		color2 = randVec3();
+		color3 = randVec3();
+		color4 = randVec3();
+
+		atmosphere = randVec3();
+		horizon = randVec3();
+	}
 }
 
 void Planet::genRocky()
 {
-
+	isGiant = false;
 	//shrink if there is a giant
 	if (isGiant)
 		scale(((randFloat()*1.0f)+7.0f)/2);
@@ -144,6 +154,17 @@ void Planet::genRocky()
 
 	atmosphere = cooler((color1+color2)/2.0f, seededRand());
 	horizon = warmer(atmosphere, seededRand());
+
+	if (seededRand() < 0.5) {
+		//completely random color
+		color1 = randVec3();
+		color2 = randVec3();
+		color3 = randVec3();
+		color4 = randVec3();
+
+		atmosphere = randVec3();
+		horizon = randVec3();
+	}
 }
 
 void Planet::genMoon()
@@ -296,8 +317,6 @@ void Planet::setSeed(float newseed)
 		rand();
 	}
 }
-
-
 
 
 

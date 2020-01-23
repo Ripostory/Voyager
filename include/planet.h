@@ -36,7 +36,7 @@ public:
 	void frame();
 	void place();
 	void setSeed(float);
-
+	bool isGiant;
 private:
 	glm::vec3 color1;
 	glm::vec3 color2;
@@ -53,7 +53,6 @@ private:
 
 	float seed;
 	float roll;
-	bool isGiant;
 };
 
 
