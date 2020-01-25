@@ -62,7 +62,7 @@ void FrameBuffer::addRBOTex(GLenum type, GLenum attach)
 
 	if (type != GL_DEPTH_COMPONENT)
 	{
-		if (type == GL_RGBA || type == GL_RGB8 || type == GL_RGB10 || GL_R11F_G11F_B10F)
+		if (type == GL_RGBA || type == GL_RGB8 || type == GL_RGB10 || type == GL_R11F_G11F_B10F)
 			glTexImage2D(GL_TEXTURE_2D, 0, type,
 					width, height, 0, GL_RGB,
 					GL_UNSIGNED_BYTE, NULL);
