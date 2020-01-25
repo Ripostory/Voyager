@@ -18,13 +18,6 @@ running = True;
 #date of initial departure
 epoch = datetime.datetime(2017, 7, 3, 20, 11, 0, 0)
 
-client =  pytumblr.TumblrRestClient(
-    auth.auth1,
-    auth.auth2,
-    auth.auth3,
-    auth.auth4,
-)
-
 def genImage(name, seed):
     print("generating image " + name + ".png with seed " + seed)
     call(["./Voyager", name ,seed]);
@@ -48,6 +41,12 @@ def genCaption():
     return newCaption;
 
 def post(image, cap, tag):
+    client =  pytumblr.TumblrRestClient(
+    auth.auth1,
+    auth.auth2,
+    auth.auth3,
+    auth.auth4
+    )
     client.create_photo(
         auth.blogName, 
         state="published", 
@@ -72,7 +71,7 @@ def postAll():
 def runPoster():
     #set schedule
     schedule.every().day.at("20:30").do(postAll)
-    schedule.every().day.at("8:30").do(postAll)
+    schedule.every().day.at("08:30").do(postAll)
     while running:
         schedule.run_pending()
         time.sleep(5)
