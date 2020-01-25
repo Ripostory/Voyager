@@ -89,6 +89,11 @@ while running:
         print("ending program...")
         running = False
         thread.join()
+
+    if textInp == "forcePost":
+        #immediately trigger a post
+        print("Forcing post...")
+        postAll()
     
     
 print("good night sweet prince")
