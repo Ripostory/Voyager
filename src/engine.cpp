@@ -113,19 +113,19 @@ void Engine::Keyboard(eventType event)
 
 unsigned int Engine::getDT()
 {
-  long long TimeNowMillis = GetCurrentTimeMillis();
-  assert(TimeNowMillis >= m_currentTimeMillis);
-  unsigned int DeltaTimeMillis = (unsigned int)(TimeNowMillis - m_currentTimeMillis);
+  long long TimeNowMillis = SDL_GetPerformanceCounter();
+  //check to make sure the counter function didn't overflow
+  unsigned int DeltaTimeMillis = 0;
+  if (TimeNowMillis >= m_currentTimeMillis) {
+      DeltaTimeMillis = (double)((TimeNowMillis - m_currentTimeMillis) * 1000 / (double)SDL_GetPerformanceFrequency());
+  }
   m_currentTimeMillis = TimeNowMillis;
   return DeltaTimeMillis;
 }
 
 long long Engine::GetCurrentTimeMillis()
 {
-  timeval t;
-  getDayTime(&t, NULL);
-  long long ret = t.tv_sec * 1000 + t.tv_usec / 1000;
-  return ret;
+    return SDL_GetPerformanceCounter();
 }
 
 void Engine::passArgs(string filename, float seed)
@@ -133,50 +133,6 @@ void Engine::passArgs(string filename, float seed)
 	outputName = filename;
 	m_graphics->setSeed(seed);
 }
-
-int Engine::getDayTime(timeval* tv, timezone* tz)
-{
-#ifdef __linux__
-    return gettimeofday(tv, tz);
-#endif // __linux__
-
-#ifdef _WIN32
-    FILETIME ft;
-    unsigned __int64 tmpres = 0;
-    static int tzflag;
-
-    if (NULL != tv)
-    {
-        GetSystemTimeAsFileTime(&ft);
-
-        tmpres |= ft.dwHighDateTime;
-        tmpres <<= 32;
-        tmpres |= ft.dwLowDateTime;
-
-        /*converting file time to unix epoch*/
-        tmpres -= DELTA_EPOCH_IN_MICROSECS;
-        tmpres /= 10;  /*convert into microseconds*/
-        tv->tv_sec = (long)(tmpres / 1000000UL);
-        tv->tv_usec = (long)(tmpres % 1000000UL);
-    }
-
-    if (NULL != tz)
-    {
-        if (!tzflag)
-        {
-            _tzset();
-            tzflag++;
-        }
-        tz->tz_minuteswest = _timezone / 60;
-        tz->tz_dsttime = _daylight;
-    }
-
-    return 0;
-#endif // _WIN32
-
-}
-
-
 
 
 
