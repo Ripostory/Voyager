@@ -1,4 +1,4 @@
-
+import twitter
 import pytumblr
 import auth
 import datetime
@@ -40,7 +40,11 @@ def genCaption():
     newCaption = "<i>Squidolus</i> [" + getTime() + "]"
     return newCaption;
 
-def post(image, cap, tag):
+def genTwitterCaption():
+    newCaption = "- Squidolus [" + getTime() + "]"
+    return newCaption;
+
+def postTumblr(image, cap, tag):
     client =  pytumblr.TumblrRestClient(
     auth.auth1,
     auth.auth2,
@@ -54,24 +58,53 @@ def post(image, cap, tag):
         caption=cap,
         data=filepath+image+".png"
     )
+    print("posted with caption: " + cap)
     return;
 
-def postAll():
-    imgSeed = str(random()*2000.0-1000.0)
-    imgName = genName()
-    imgCaption = genCaption()
-    genImage(filepath + imgName, imgSeed)
-    print('rendering program finished.')
-    if postingEnabled:
-        post(imgName, imgCaption, defaultTags)
-        print("posted with caption: " + imgCaption)
+def postTwitter(image, cap, tag):
+    api = twitter.Api(
+	    consumer_key=auth.twitterKeyApi,
+	    consumer_secret=auth.twitterKeySecret,
+	    access_token_key=auth.twitterKeyToken,
+	    access_token_secret=auth.twitterKeyTokenSecret
+	)
+    status = api.PostUpdate(status=cap, media=filepath+image+".png")
+    print("{0} just posted: {1}".format(status.user.name, status.text))
+    return;
+
+def generateTumblr():
+    try:
+        imgSeed = str(random()*2000.0-1000.0)
+        imgName = genName()
+        imgCaption = genCaption()
+        genImage(filepath + imgName, imgSeed)
+        print('rendering program finished.')
+        if postingEnabled:
+            postTumblr(imgName, imgCaption, defaultTags)
+    except:
+        print('An Error has occured while posting to Tumblr')
+    return;
+
+def generateTwitter():
+    try:
+        imgSeed = str(random()*2000.0-1000.0)
+        imgName = genName()
+        imgCaption = genTwitterCaption()
+        genImage(filepath + imgName, imgSeed)
+        print('rendering program finished.')
+        if postingEnabled:
+            postTwitter(imgName, imgCaption, defaultTags)
+    except:
+        print('An Error has occured while posting to Twitter')
     return;
 
 #threaded runner that posts daily
 def runPoster():
     #set schedule
-    schedule.every().day.at("20:30").do(postAll)
-    schedule.every().day.at("08:30").do(postAll)
+    schedule.every().day.at("20:30").do(generateTumblr)
+    schedule.every().day.at("08:30").do(generateTumblr)
+    schedule.every().day.at("00:30").do(generateTwitter)
+    schedule.every().day.at("16:30").do(generateTwitter)
     while running:
         schedule.run_pending()
         time.sleep(5)
@@ -90,11 +123,15 @@ while running:
         running = False
         thread.join()
 
-    if textInp == "forcePost":
+    if textInp == "forceTumblrPost":
         #immediately trigger a post
-        print("Forcing post...")
-        postAll()
-    
+        print("Forcing tumblr post...")
+        generateTumblr()
+
+    if textInp == "forceTwitterPost":
+        #immediately trigger a post
+        print("Forcing twitter post...")
+        generateTwitter()
     
 print("good night sweet prince")
 
