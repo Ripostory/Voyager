@@ -219,6 +219,7 @@ bool loader::writeImage(string filename, int width, int height)
 	final.haldClut(lut);
 
 	cout << "writing image to " << filename <<".png..." << endl;
+	final.magick("PNG");
 	final.write(filename + ".png");
 	delete[] buffer;
 
